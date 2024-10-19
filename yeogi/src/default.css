@@ -1,0 +1,15 @@
+:root {
+  --main-text-color: #101010;
+  --main-color: #ff2938;
+  --main-text-size-1: 1rem;
+  --main-text-size-2: 2rem;
+  --main-text-size-3: 3rem;
+  --main-text-weight-1: 400;
+  --main-text-weight-2: 600;
+  --main-text-weight-3: 800;
+  --main-margin-1: 1rem;
+  --main-margin-2: 2rem;
+  --main-margin-3: 3rem;
+  --main-margin-4: 4rem;
+  --main-margin-5: 5rem;
+}

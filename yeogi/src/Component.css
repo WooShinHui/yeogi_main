@@ -1,0 +1,180 @@
+@import url(./default.css);
+@import url(./fonts/PretendardGOV/PretendardGOV.css);
+
+:root {
+  --main-color: #0077cc;
+  --main-text-color: #333;
+  --main-bg-color: #f5f5f5;
+  --main-margin-1: 8px;
+  --main-margin-2: 16px;
+  --main-margin-3: 24px;
+  --main-margin-4: 32px;
+  --main-text-size-1: 14px;
+  --main-text-size-2: 16px;
+  --main-text-size-3: 20px;
+  --main-text-weight-1: 400;
+  --main-text-weight-2: 600;
+  --main-text-weight-3: 700;
+}
+
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  font-size: var(--main-text-size-1);
+  font-family: "Pretendard GOV", sans-serif;
+  font-weight: var(--main-text-weight-1);
+  line-height: 150%;
+  color: var(--main-text-color);
+  background-color: var(--main-bg-color);
+}
+.content {
+  flex: 1;
+  overflow-y: auto;
+}
+.App {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  width: 360px;
+  background-color: white;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  overflow-y: auto;
+  position: relative;
+}
+
+.App-header {
+  color: var(--main-text-color);
+  font-size: var(--main-text-size-2);
+  margin-top: var(--main-margin-3);
+  font-weight: var(--main-text-weight-3);
+}
+.Login-Button {
+  margin-top: auto;
+  width: 100%;
+}
+
+.Input {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 360px;
+  gap: var(--main-margin-2);
+  padding: var(--main-margin-2);
+}
+
+.Input input {
+  height: 48px;
+  width: 100%;
+  max-width: 288px;
+  border: none;
+  border-bottom: solid 1px var(--main-text-color);
+  font-size: var(--main-text-size-1);
+  padding: 0 var(--main-margin-1);
+}
+
+.Birth {
+  width: 100%;
+  max-width: 288px;
+}
+
+.Birth p {
+  margin-bottom: var(--main-margin-1);
+}
+
+.Input-Birth {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.Input-Birth input {
+  height: 32px;
+}
+
+.Button-Login {
+  width: 100%;
+  height: 64px;
+  border: none;
+  background-color: var(--main-color);
+  color: white;
+  font-size: var(--main-text-size-2);
+  font-weight: var(--main-text-weight-3);
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.Button-Login:hover {
+  background-color: #005fa3;
+}
+
+.Error {
+  color: red;
+  font-size: var(--main-text-size-1);
+  margin-top: var(--main-margin-1);
+}
+.Error p {
+  margin: 0;
+}
+.SNS-Login {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: var(--main-margin-3);
+}
+
+.SNS-Login button {
+  width: 100%;
+  max-width: 294px;
+  height: 48px;
+  background-color: #fee500;
+  border: none;
+  border-radius: 12px;
+  font-size: var(--main-text-size-2);
+  font-weight: var(--main-text-weight-2);
+  color: #000000;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 0 var(--main-margin-2);
+  transition: background-color 0.3s;
+}
+
+.SNS-Login button:hover {
+  background-color: #fdd835;
+}
+
+.SNS-Login button img {
+  width: 24px;
+  height: 24px;
+  margin-right: var(--main-margin-2);
+}
+
+.SNS-Login button span {
+  flex-grow: 1;
+  text-align: center;
+}
+.header-title {
+  font-size: 24px;
+}
+
+.center-title {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+}
+.bottom-navigation {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 72px;
+  background-color: #ffffff;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+}

@@ -1,0 +1,7 @@
+id,name,location,price,max_guests,description,image_url,available_from,available_to,latitude,longitude
+1,"서울 그랜드 호텔","서울특별시 중구",150000.00,4,"서울 중심부에 위치한 고급 호텔",https://www.swissgrand.co.kr/wp-content/uploads/sites/103/2020/10/main_image2200x1200_03-1-2200x1200.jpg,2023-05-01,2023-07-31,37.56650000,126.97800000
+2,"부산 오션 뷰 리조트","부산광역시 해운대구",200000.00,6,"해운대 해변이 보이는 럭셔리 리조트",https://www.banyantreehaeundaebusan.com/wp-content/uploads/2024/10/main_video_thum_02_1.jpg,2023-08-31,2023-09-05,35.17960000,129.07560000
+3,"제주 힐링 펜션","제주특별자치도 서귀포시",100000.00,2,"제주의 자연 속에서 휴식을 취할 수 있는 펜션",https://dynamic-media-cdn.tripadvisor.com/media/photo-o/11/cf/aa/f8/caption.jpg?w=1200&h=-1&s=1,2023-09-30,2023-10-05,33.49960000,126.53120000
+4,"서울 그랜드 호텔","서울특별시 중구",150000.00,4,"서울 중심부에 위치한 고급 호텔",https://img.hyundaicard.com/upload/cpd/cs/1_1643855346641.jpg,2024-09-30,2024-10-10,37.56420000,127.00160000
+5,"부산 오션 뷰 리조트","부산광역시 해운대구",200000.00,6,"해운대 해변이 보이는 럭셔리 리조트",https://lh5.googleusercontent.com/p/AF1QipO3cktZC9yggjTqjJCWD5a6EV0qHOWRd2uiOLs2=w252-h185-k-no,2024-08-30,2024-09-20,35.15450000,129.06000000
+6,"제주 힐링 펜션","제주특별자치도 서귀포시",100000.00,2,"제주의 자연 속에서 휴식을 취할 수 있는 펜션",https://cdn.prod.website-files.com/6316f3f75130788ec2d762dd/63da2a7aa0807f4516222c0b_3-min.jpg,2024-10-20,2024-10-25,33.48900000,126.49830000

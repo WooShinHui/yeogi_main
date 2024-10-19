@@ -1,0 +1,60 @@
+.hotel-info {
+  position: absolute;
+  bottom: 8px; /* Footer 높이(72px) + 마진 탑(12px) */
+  left: 16px;
+  right: 16px;
+  display: flex;
+  background-color: white;
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 1000; /* 지도 위에 표시되도록 z-index 설정 */
+}
+
+.hotel-image {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-right: 12px;
+}
+
+.hotel-details {
+  flex: 1;
+}
+
+.hotel-name {
+  font-size: 16px;
+  font-weight: bold;
+  margin: 0 0 4px 0;
+}
+
+.hotel-price {
+  font-size: 14px;
+  color: #ff2938;
+  margin: 0 0 4px 0;
+}
+
+.hotel-location {
+  font-size: 12px;
+  color: #666;
+  margin: 0 0 4px 0;
+}
+
+.hotel-description {
+  font-size: 12px;
+  color: #888;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+}
+.hotel-info {
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.hotel-info:hover {
+  background-color: #f0f0f0;
+}

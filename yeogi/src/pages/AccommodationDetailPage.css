@@ -1,0 +1,81 @@
+.yeogi-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.yeogi-main.accommodation-detail-content {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  margin-top: -16px;
+  margin-left: -16px;
+  margin-right: -16px;
+  height: calc(100vh - 144px); /* 헤더(72px)와 푸터(72px)의 높이를 뺀 값 */
+}
+
+.accommodation-info {
+  margin-left: 32px;
+  top: 200px;
+}
+
+.action-buttons {
+  margin-top: 20px;
+  padding-bottom: 20px;
+  margin-right: 32px;
+}
+
+/* 나머지 스타일은 그대로 유지 */
+/* 나머지 스타일은 그대로 유지 */
+
+.accommodation-info h1 {
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+.price {
+  font-size: 18px;
+  font-weight: bold;
+  color: #ff385c;
+  margin-bottom: 10px;
+}
+
+.description {
+  font-size: 16px;
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+.book-button,
+.like-button {
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.book-button {
+  background-color: #ff385c;
+  margin-right: 10px;
+  color: white;
+}
+
+.like-button {
+  background-color: white;
+  color: #ff385c;
+  border: 1px solid #ff385c;
+}
+
+.like-button.liked {
+  background-color: #ff385c;
+  color: white;
+}

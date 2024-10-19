@@ -1,0 +1,59 @@
+.yeogi-header {
+  background-color: white;
+  padding: 0 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  height: 72px !important; /* !important를 추가하여 다른 스타일을 덮어씁니다 */
+  min-height: 72px; /* 최소 높이도 설정 */
+  max-height: 72px; /* 최대 높이도 설정 */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  box-sizing: border-box; /* 패딩을 높이에 포함 */
+}
+
+.yeogi-header .back-button,
+.yeogi-header .mypage-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.yeogi-header .back-button img,
+.yeogi-header .mypage-button img {
+  height: 24px;
+  width: auto;
+}
+
+.yeogi-header .header-title {
+  font-size: 24px;
+  margin: 0;
+}
+
+.yeogi-header .center-title {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.logo-container {
+  display: flex;
+  align-items: center;
+}
+
+.yeogi-header-logo {
+  height: 24px;
+  width: 100px;
+}
+
+.mypage-button {
+  display: flex;
+  align-items: center;
+}
+
+.mypage-button img {
+  height: 24px;
+  width: auto;
+}

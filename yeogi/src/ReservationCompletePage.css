@@ -1,0 +1,45 @@
+.reservation-complete-content {
+  padding: 20px;
+}
+
+.reservation-complete-form {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.reservation-complete-form h1 {
+  color: #333;
+  font-size: 24px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.reservation-details p {
+  margin-bottom: 10px;
+  font-size: 16px;
+}
+
+.reservation-details strong {
+  font-weight: bold;
+  color: #555;
+}
+.accommodation-summary {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.accommodation-summary img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.accommodation-summary h2 {
+  font-size: 20px;
+  color: #333;
+}

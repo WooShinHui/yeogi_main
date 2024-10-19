@@ -1,0 +1,312 @@
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css");
+
+:root {
+  --main-color: #0077cc;
+  --main-text-color: #333;
+  --main-bg-color: #f5f5f5;
+  --main-margin-1: 8px;
+  --main-margin-2: 16px;
+  --main-margin-3: 24px;
+  --main-text-size-1: 14px;
+  --main-text-size-2: 16px;
+  --main-text-size-3: 20px;
+  --main-text-weight-1: 400;
+  --main-text-weight-2: 600;
+}
+
+body,
+html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+}
+* {
+  font-family: "Pretendard", sans-serif;
+}
+
+.yeogi-container {
+  width: 360px;
+  height: 100vh;
+  margin: 0 auto;
+  background-color: white;
+  position: relative;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.yeogi-main {
+  flex: 1;
+  overflow-y: auto;
+  padding-bottom: 72px; /* Footer의 높이만큼 패딩 추가 */
+}
+.mypage-button img {
+  width: 24px;
+  height: 24px;
+}
+
+/* 검색 박스 */
+.search-box {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: var(--main-margin-2);
+  margin-bottom: var(--main-margin-3);
+}
+.search-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: var(--main-margin-1);
+}
+
+.search-box input,
+.search-box .react-datepicker-wrapper,
+.search-box button {
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: var(--main-text-size-1);
+  box-sizing: border-box;
+}
+
+/* DatePicker 입력 필드의 너비를 조정 */
+.react-datepicker__input-container input {
+  width: 100%;
+}
+.react-datepicker__na input {
+  width: 100%;
+}
+.date-picker-wrapper {
+  flex: 1;
+  min-width: 0;
+}
+.search-box button {
+  background-color: var(--main-color);
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.search-box button:hover {
+  background-color: #005fa3;
+}
+
+/* 카테고리 그리드 */
+.categories-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--main-margin-2);
+  margin-bottom: var(--main-margin-3);
+}
+
+.category-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.category-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  max-width: 48px;
+  max-height: 48px;
+}
+
+.category-name {
+  font-size: var(--main-text-size-1);
+  font-weight: var(--main-text-weight-2);
+}
+/* 광고 배너 */
+.ad-banner {
+  position: relative;
+}
+.ad-banner p {
+  position: absolute;
+  top: 0px;
+  left: 12px;
+  z-index: 1001;
+  font-size: var(--main-text-size-1);
+  font-weight: var(--main-text-weight-2);
+  color: white;
+}
+.ad-banner img {
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+  object-fit: contain;
+}
+/* 추천 호텔 섹션 */
+.recommended-section {
+  margin-bottom: var(--main-margin-3);
+}
+
+.recommended-hotels-container {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.recommended-hotels {
+  display: flex;
+  gap: var(--main-margin-2);
+  padding-bottom: var(--main-margin-2);
+}
+
+.hotel-card img {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  max-width: 100%;
+}
+
+.hotel-card img {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+}
+
+.hotel-card h3 {
+  font-size: var(--main-text-size-2);
+  margin: var(--main-margin-1);
+}
+
+.hotel-card p {
+  font-size: var(--main-text-size-1);
+  margin: var(--main-margin-1);
+  color: #666;
+}
+
+/* 검색 결과 */
+.search-results {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: var(--main-margin-2);
+}
+
+.accommodation-card {
+  background-color: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  text-decoration: none;
+  color: inherit;
+}
+
+.accommodation-card img {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+}
+
+.accommodation-card h3 {
+  font-size: var(--main-text-size-2);
+  margin: var(--main-margin-1);
+  font-weight: var(--main-text-weight-2);
+}
+
+.accommodation-card p {
+  margin: var(--main-margin-1);
+  font-size: var(--main-text-size-1);
+  color: #666;
+}
+
+/* 푸터 스타일 수정 */
+.yeogi-footer {
+  background-color: #f5f5f5;
+  text-align: center;
+  padding: var(--main-margin-1);
+  font-size: 0.8rem;
+  color: #666;
+  width: 100%;
+}
+.react-datepicker__header--custom {
+  padding: 10px 0 !important;
+}
+
+/* 커스텀 헤더 내부의 div */
+.react-datepicker__header--custom > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 10px;
+}
+
+/* 년월 표시 span */
+.react-datepicker__header--custom span {
+  font-size: 14px;
+  font-weight: bold;
+}
+
+/* 이전/다음 월 버튼 크기 조정 */
+.react-datepicker__header--custom button {
+  font-size: 16px;
+  height: 20px; /* 버튼 높이 유지 */
+  padding: 0; /* 패딩 제거 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-width: 20px; /* 최소 너비 설정 */
+  flex-shrink: 0; /* 버튼 크기 축소 방지 */
+}
+.react-datepicker__navigation.react-datepicker__navigation--previous,
+.react-datepicker__navigation.react-datepicker__navigation--next {
+  width: 28px !important;
+  height: 28px !important;
+  top: 8px !important;
+}
+
+.react-datepicker__navigation--previous {
+  left: 10px !important; /* 왼쪽 버튼 위치 조정 */
+}
+
+.react-datepicker__navigation--next {
+  right: 10px !important; /* 오른쪽 버튼 위치 조정 */
+}
+
+/* 화살표 아이콘 크기 및 위치 조정 */
+.react-datepicker__navigation-icon::before {
+  border-width: 2px 2px 0 0 !important; /* 화살표 두께 줄임 */
+  height: 8px !important; /* 화살표 크기 줄임 */
+  width: 8px !important; /* 화살표 크기 줄임 */
+  top: 8px !important;
+}
+
+.react-datepicker__navigation-icon--previous::before {
+  right: -3px !important;
+}
+
+.react-datepicker__navigation-icon--next::before {
+  left: -3px !important;
+}
+
+/* 년월 표시 스타일 */
+.react-datepicker__current-month {
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+.react-datepicker-popper {
+  z-index: 9999 !important;
+}
+.react-datepicker {
+  font-family: "Pretendard", sans-serif !important;
+  font-size: 0.8rem !important;
+}
+
+.react-datepicker__current-month {
+  font-size: 1rem !important;
+}
+
+.react-datepicker__day-name,
+.react-datepicker__day {
+  width: 1.9rem !important;
+  line-height: 1.9rem !important;
+  margin: 0.166rem !important;
+}
+
+.react-datepicker__day--selected {
+  background-color: var(--main-color) !important;
+}
