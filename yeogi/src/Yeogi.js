@@ -47,12 +47,12 @@ function Yeogi() {
 
   const fetchRecommendedHotels = async () => {
     try {
-      const response = await axios.get(
-        "http://localhost:3001/recommended-hotels"
-      );
+      const response = await axios.get("/recommended-hotels", {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
       setRecommendedHotels(response.data);
     } catch (error) {
-      console.error("추천 호텔 불러오기 오류:", error);
+      console.error("추천 호텔 조회 오류:", error);
     }
   };
 
@@ -86,7 +86,14 @@ function Yeogi() {
       );
 
       setSearchResults(response.data);
-
+      // 검색 기록 저장
+      await axios.post(
+        "/api/search-history",
+        { keyword: searchParams.destination },
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        }
+      );
       // URL 파라미터 업데이트
       const queryParams = new URLSearchParams({
         location: searchParams.destination,
@@ -102,176 +109,188 @@ function Yeogi() {
     }
   };
 
+  const handleCategoryClick = (categoryName) => {
+    const queryParams = new URLSearchParams({
+      type: categoryName,
+    });
+    navigate(`/accommodations/search?${queryParams.toString()}`);
+  };
   return (
     <div className="yeogi-container">
       <Header showMyPage={true} />
-      <main className="yeogi-main">
-        <section className="search-box">
-          <h2>지금 어디로 여행가세요?</h2>
-          <div className="search-inputs">
-            <input
-              type="text"
-              placeholder="목적지"
-              value={searchParams.destination}
-              onChange={(e) =>
-                setSearchParams({
-                  ...searchParams,
-                  destination: e.target.value,
-                })
-              }
-            />
-            <DatePicker
-              selected={searchParams.checkIn}
-              onChange={(date) =>
-                setSearchParams({ ...searchParams, checkIn: date })
-              }
-              selectsStart
-              startDate={searchParams.checkIn}
-              endDate={searchParams.checkOut}
-              minDate={new Date()} // 오늘 이전 날짜 선택 불가
-              placeholderText="체크인"
-              className="date-picker"
-              locale="ko"
-              dateFormat="yyyy.MM.dd"
-              renderCustomHeader={({
-                date,
-                decreaseMonth,
-                increaseMonth,
-                prevMonthButtonDisabled,
-                nextMonthButtonDisabled,
-              }) => (
-                <div
-                  style={{
-                    margin: 10,
-                    display: "flex",
-                    justifyContent: "center",
-                  }}
-                >
-                  <button
-                    onClick={decreaseMonth}
-                    disabled={prevMonthButtonDisabled}
-                  >
-                    {"<"}
-                  </button>
-                  <span style={{ margin: "0 10px" }}>
-                    {formatMonthYear(date)}
-                  </span>
-                  <button
-                    onClick={increaseMonth}
-                    disabled={nextMonthButtonDisabled}
-                  >
-                    {">"}
-                  </button>
-                </div>
-              )}
-            />
-            <DatePicker
-              selected={searchParams.checkOut}
-              onChange={(date) =>
-                setSearchParams({ ...searchParams, checkOut: date })
-              }
-              selectsEnd
-              startDate={searchParams.checkIn}
-              endDate={searchParams.checkOut}
-              minDate={searchParams.checkIn || new Date()} // 체크인 날짜 이후 또는 오늘 이후
-              placeholderText="체크아웃"
-              className="date-picker"
-              locale="ko"
-              dateFormat="yyyy.MM.dd"
-              renderCustomHeader={({
-                date,
-                decreaseMonth,
-                increaseMonth,
-                prevMonthButtonDisabled,
-                nextMonthButtonDisabled,
-              }) => (
-                <div
-                  style={{
-                    margin: 10,
-                    display: "flex",
-                    justifyContent: "center",
-                  }}
-                >
-                  <button
-                    onClick={decreaseMonth}
-                    disabled={prevMonthButtonDisabled}
-                  >
-                    {"<"}
-                  </button>
-                  <span style={{ margin: "0 10px" }}>
-                    {formatMonthYear(date)}
-                  </span>
-                  <button
-                    onClick={increaseMonth}
-                    disabled={nextMonthButtonDisabled}
-                  >
-                    {">"}
-                  </button>
-                </div>
-              )}
-            />
-            <input
-              type="number"
-              placeholder="인원"
-              value={searchParams.guests}
-              onChange={(e) => {
-                const value = parseInt(e.target.value);
-                if (value >= 1 || e.target.value === "") {
+      <div className="yeogi-content">
+        <main className="yeogi-main">
+          <section className="search-box">
+            <h2>지금 어디로 여행가세요?</h2>
+            <div className="search-inputs">
+              <input
+                type="text"
+                placeholder="목적지"
+                value={searchParams.destination}
+                onChange={(e) =>
                   setSearchParams({
                     ...searchParams,
-                    guests: e.target.value === "" ? "" : value,
-                  });
+                    destination: e.target.value,
+                  })
                 }
-              }}
-              min="1"
-              onBlur={(e) => {
-                if (e.target.value === "" || parseInt(e.target.value) < 1) {
-                  setSearchParams({
-                    ...searchParams,
-                    guests: 1,
-                  });
+              />
+              <DatePicker
+                selected={searchParams.checkIn}
+                onChange={(date) =>
+                  setSearchParams({ ...searchParams, checkIn: date })
                 }
-              }}
-            />
-            <button onClick={handleSearch}>검색</button>
-          </div>
-        </section>
+                selectsStart
+                startDate={searchParams.checkIn}
+                endDate={searchParams.checkOut}
+                minDate={new Date()} // 오늘 이전 날짜 선택 불가
+                placeholderText="체크인"
+                className="date-picker"
+                locale="ko"
+                dateFormat="yyyy.MM.dd"
+                renderCustomHeader={({
+                  date,
+                  decreaseMonth,
+                  increaseMonth,
+                  prevMonthButtonDisabled,
+                  nextMonthButtonDisabled,
+                }) => (
+                  <div
+                    style={{
+                      margin: 10,
+                      display: "flex",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <button
+                      onClick={decreaseMonth}
+                      disabled={prevMonthButtonDisabled}
+                    >
+                      {"<"}
+                    </button>
+                    <span style={{ margin: "0 10px" }}>
+                      {formatMonthYear(date)}
+                    </span>
+                    <button
+                      onClick={increaseMonth}
+                      disabled={nextMonthButtonDisabled}
+                    >
+                      {">"}
+                    </button>
+                  </div>
+                )}
+              />
+              <DatePicker
+                selected={searchParams.checkOut}
+                onChange={(date) =>
+                  setSearchParams({ ...searchParams, checkOut: date })
+                }
+                selectsEnd
+                startDate={searchParams.checkIn}
+                endDate={searchParams.checkOut}
+                minDate={searchParams.checkIn || new Date()} // 체크인 날짜 이후 또는 오늘 이후
+                placeholderText="체크아웃"
+                className="date-picker"
+                locale="ko"
+                dateFormat="yyyy.MM.dd"
+                renderCustomHeader={({
+                  date,
+                  decreaseMonth,
+                  increaseMonth,
+                  prevMonthButtonDisabled,
+                  nextMonthButtonDisabled,
+                }) => (
+                  <div
+                    style={{
+                      margin: 10,
+                      display: "flex",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <button
+                      onClick={decreaseMonth}
+                      disabled={prevMonthButtonDisabled}
+                    >
+                      {"<"}
+                    </button>
+                    <span style={{ margin: "0 10px" }}>
+                      {formatMonthYear(date)}
+                    </span>
+                    <button
+                      onClick={increaseMonth}
+                      disabled={nextMonthButtonDisabled}
+                    >
+                      {">"}
+                    </button>
+                  </div>
+                )}
+              />
+              <input
+                type="number"
+                placeholder="인원"
+                value={searchParams.guests}
+                onChange={(e) => {
+                  const value = parseInt(e.target.value);
+                  if (value >= 1 || e.target.value === "") {
+                    setSearchParams({
+                      ...searchParams,
+                      guests: e.target.value === "" ? "" : value,
+                    });
+                  }
+                }}
+                min="1"
+                onBlur={(e) => {
+                  if (e.target.value === "" || parseInt(e.target.value) < 1) {
+                    setSearchParams({
+                      ...searchParams,
+                      guests: 1,
+                    });
+                  }
+                }}
+              />
+              <button onClick={handleSearch}>검색</button>
+            </div>
+          </section>
 
-        <section className="categories-grid">
-          {categories.map((category) => (
-            <div key={category.id} className="category-item">
-              <div className="category-image">
-                <img src={category.image_url} alt={category.name} />
+          <section className="categories-grid">
+            {categories.map((category) => (
+              <div
+                key={category.id}
+                className="category-item"
+                onClick={() => handleCategoryClick(category.name)}
+              >
+                <div className="category-image">
+                  <img src={category.image_url} alt={category.name} />
+                </div>
+                <p className="category-name">{category.name}</p>
               </div>
-              <p className="category-name">{category.name}</p>
-            </div>
-          ))}
-        </section>
+            ))}
+          </section>
 
-        <section className="ad-banner">
-          <p>
-            국내부터 해외까지
-            <br />
-            여행할때 여기어때
-          </p>
-          <img src="./images/ad_banner.png" alt="광고 배너" />
-        </section>
+          <section className="ad-banner">
+            <p>
+              국내부터 해외까지
+              <br />
+              여행할때 여기어때
+            </p>
+            <img src="./images/ad_banner.png" alt="광고 배너" />
+          </section>
 
-        <section className="recommended-section">
-          <h2>여기어때?</h2>
-          <div className="recommended-hotels-container">
-            <div className="recommended-hotels">
-              {recommendedHotels.map((hotel) => (
-                <div key={hotel.id} className="hotel-card">
-                  <img src={hotel.image_url} alt={hotel.name} />
-                  <h3>{hotel.name}</h3>
-                  <p>{hotel.price}원 / 박</p>
-                </div>
-              ))}
+          <section className="recommended-section">
+            <h2>여기어때?</h2>
+            <div className="recommended-hotels-container">
+              <div className="recommended-hotels">
+                {recommendedHotels.map((hotel) => (
+                  <div key={hotel.id} className="hotel-card">
+                    <img src={hotel.image_url} alt={hotel.name} />
+                    <h3>{hotel.name}</h3>
+                    <p>{hotel.price}원 / 박</p>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-        </section>
-      </main>
+          </section>
+        </main>
+      </div>
       <Footer />
     </div>
   );

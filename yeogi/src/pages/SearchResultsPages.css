@@ -1,4 +1,94 @@
-.yeogi-main {
-  margin-left: 16px;
-  margin-right: 16px;
+.yeogi-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.yeogi-main.search-results-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 20px 92px 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.search-filters {
+  display: flex;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.filter-item {
+  position: relative;
+}
+
+.filter-item:first-child {
+  flex: 3;
+  margin-right: 20px;
+}
+
+.filter-item:last-child {
+  flex: 1;
+}
+
+.date-selection,
+.guest-selection {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.search-results {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.accommodation-card {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  color: inherit;
+}
+
+.accommodation-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.accommodation-image img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.accommodation-details {
+  padding: 15px;
+}
+
+.accommodation-details h3 {
+  margin: 0 0 10px;
+  font-size: 18px;
+}
+
+.accommodation-details p {
+  margin: 5px 0;
+  font-size: 14px;
+}
+
+.price {
+  font-weight: bold;
+  color: #ff385c;
+}
+
+.no-results-message {
+  text-align: center;
+  margin-top: 50px;
+  font-size: 18px;
+  color: #666;
 }

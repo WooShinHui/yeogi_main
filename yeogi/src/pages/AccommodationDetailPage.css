@@ -13,22 +13,15 @@
   margin-top: -16px;
   margin-left: -16px;
   margin-right: -16px;
-  height: calc(100vh - 144px); /* 헤더(72px)와 푸터(72px)의 높이를 뺀 값 */
+  height: calc(100vh - 144px);
+  padding: 16px 16px 92px 16px;
 }
 
 .accommodation-info {
-  margin-left: 32px;
+  margin-left: 16px;
+  margin-right: 16px;
   top: 200px;
 }
-
-.action-buttons {
-  margin-top: 20px;
-  padding-bottom: 20px;
-  margin-right: 32px;
-}
-
-/* 나머지 스타일은 그대로 유지 */
-/* 나머지 스타일은 그대로 유지 */
 
 .accommodation-info h1 {
   font-size: 24px;
@@ -48,10 +41,33 @@
   margin-bottom: 20px;
 }
 
+.booking-info {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  margin-left: 16px;
+  margin-right: 16px;
+  position: relative;
+}
+
+.filter-item {
+  position: relative;
+  flex: 1;
+}
+
+.date-selection {
+  flex: 3;
+}
+
+.guest-selection {
+  flex: 1;
+}
+
 .action-buttons {
   display: flex;
-  justify-content: flex-end;
-  margin-top: 20px;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0px 16px 0px 16px;
 }
 
 .book-button,
@@ -60,19 +76,25 @@
   font-size: 16px;
   border: none;
   border-radius: 5px;
+  height: 44px; /* 두 버튼의 높이를 동일하게 설정 */
   cursor: pointer;
+  width: 120px; /* 버튼의 고정 너비 설정 */
+  text-align: center; /* 텍스트 중앙 정렬 */
 }
 
 .book-button {
   background-color: #ff385c;
-  margin-right: 10px;
   color: white;
+  flex-grow: 1;
+  margin-right: 10px;
 }
 
 .like-button {
   background-color: white;
   color: #ff385c;
   border: 1px solid #ff385c;
+  transition: all 0.3s ease; /* 부드러운 전환 효과 추가 */
+  margin-top: 0px;
 }
 
 .like-button.liked {

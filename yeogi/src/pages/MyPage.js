@@ -86,103 +86,107 @@ function MyPage() {
   return (
     <div className="yeogi-container">
       <Header title="마이페이지" showBackButton={true} />
-      <main className="yeogi-main my-page-content">
-        <div className="tab-buttons">
-          <button
-            className={`tab-button ${
-              activeTab === "reservations" ? "active" : ""
-            }`}
-            onClick={() => setActiveTab("reservations")}
-          >
-            예약한 숙소
-          </button>
-          <button
-            className={`tab-button ${activeTab === "likes" ? "active" : ""}`}
-            onClick={() => setActiveTab("likes")}
-          >
-            찜한 숙소
-          </button>
-        </div>
-
-        {activeTab === "reservations" && (
-          <div className="my-page-accommodations">
-            <h2>예약한 숙소</h2>
-            {reservations.length > 0 ? (
-              reservations.map((reservation) => (
-                <div
-                  key={reservation.id}
-                  className="my-page-accommodation-card"
-                  onClick={() =>
-                    handleAccommodationClick(reservation.accommodation_id)
-                  }
-                >
-                  <img
-                    src={reservation.image_url}
-                    alt={reservation.accommodation_name}
-                    className="my-page-accommodation-image"
-                  />
-                  <div className="my-page-accommodation-details">
-                    <h3>{reservation.accommodation_name}</h3>
-                    <p>체크인: {formatDate(reservation.check_in_date)}</p>
-                    <p>체크아웃: {formatDate(reservation.check_out_date)}</p>
-                    <p>인원: {reservation.guests}명</p>
-                    <p className="my-page-accommodation-price">
-                      총 가격: {reservation.total_price}원
-                    </p>
-                    <p>
-                      예약 상태:{" "}
-                      {reservation.payment_status === "completed"
-                        ? "예약 완료"
-                        : "대기 중"}
-                    </p>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <p className="my-page-no-accommodations">
-                예약한 숙소가 없습니다.
-              </p>
-            )}
+      <div className="yeogi-content">
+        <main className="yeogi-main my-page-content">
+          <div className="tab-buttons">
+            <button
+              className={`tab-button ${
+                activeTab === "reservations" ? "active" : ""
+              }`}
+              onClick={() => setActiveTab("reservations")}
+            >
+              예약한 숙소
+            </button>
+            <button
+              className={`tab-button ${activeTab === "likes" ? "active" : ""}`}
+              onClick={() => setActiveTab("likes")}
+            >
+              찜한 숙소
+            </button>
           </div>
-        )}
 
-        {activeTab === "likes" && (
-          <div className="my-page-accommodations">
-            <h2>찜한 숙소</h2>
-            {likedAccommodations.length > 0 ? (
-              likedAccommodations.map((accommodation) => (
-                <div
-                  key={accommodation.id}
-                  className="my-page-accommodation-card"
-                >
-                  <img
-                    src={accommodation.image_url}
-                    alt={accommodation.name}
-                    className="my-page-accommodation-image"
-                    onClick={() => handleAccommodationClick(accommodation.id)}
-                  />
-                  <div className="my-page-accommodation-details">
-                    <h3>{accommodation.name}</h3>
-                    <p>{accommodation.location}</p>
-                    <p className="my-page-accommodation-price">
-                      가격: {accommodation.price}원 / 박
-                    </p>
-                    <p>최대 인원: {accommodation.max_guests}명</p>
-                    <button
-                      className="like-button liked"
-                      onClick={() => handleLike(accommodation.id)}
-                    >
-                      찜 취소
-                    </button>
+          {activeTab === "reservations" && (
+            <div className="my-page-accommodations">
+              <h2>예약한 숙소</h2>
+              {reservations.length > 0 ? (
+                reservations.map((reservation) => (
+                  <div
+                    key={reservation.id}
+                    className="my-page-accommodation-card"
+                    onClick={() =>
+                      handleAccommodationClick(reservation.accommodation_id)
+                    }
+                  >
+                    <img
+                      src={reservation.image_url}
+                      alt={reservation.accommodation_name}
+                      className="my-page-accommodation-image"
+                    />
+                    <div className="my-page-accommodation-details">
+                      <h3>{reservation.accommodation_name}</h3>
+                      <p>체크인: {formatDate(reservation.check_in_date)}</p>
+                      <p>체크아웃: {formatDate(reservation.check_out_date)}</p>
+                      <p>인원: {reservation.guests}명</p>
+                      <p className="my-page-accommodation-price">
+                        총 가격: {reservation.total_price}원
+                      </p>
+                      <p>
+                        예약 상태:{" "}
+                        {reservation.payment_status === "completed"
+                          ? "예약 완료"
+                          : "대기 중"}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              ))
-            ) : (
-              <p className="my-page-no-accommodations">찜한 숙소가 없습니다.</p>
-            )}
-          </div>
-        )}
-      </main>
+                ))
+              ) : (
+                <p className="my-page-no-accommodations">
+                  예약한 숙소가 없습니다.
+                </p>
+              )}
+            </div>
+          )}
+
+          {activeTab === "likes" && (
+            <div className="my-page-accommodations">
+              <h2>찜한 숙소</h2>
+              {likedAccommodations.length > 0 ? (
+                likedAccommodations.map((accommodation) => (
+                  <div
+                    key={accommodation.id}
+                    className="my-page-accommodation-card"
+                  >
+                    <img
+                      src={accommodation.image_url}
+                      alt={accommodation.name}
+                      className="my-page-accommodation-image"
+                      onClick={() => handleAccommodationClick(accommodation.id)}
+                    />
+                    <div className="my-page-accommodation-details">
+                      <h3>{accommodation.name}</h3>
+                      <p>{accommodation.location}</p>
+                      <p className="my-page-accommodation-price">
+                        가격: {accommodation.price}원 / 박
+                      </p>
+                      <p>최대 인원: {accommodation.max_guests}명</p>
+                      <button
+                        className="like-button liked"
+                        onClick={() => handleLike(accommodation.id)}
+                      >
+                        찜 취소
+                      </button>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p className="my-page-no-accommodations">
+                  찜한 숙소가 없습니다.
+                </p>
+              )}
+            </div>
+          )}
+        </main>
+      </div>
       <Footer />
     </div>
   );

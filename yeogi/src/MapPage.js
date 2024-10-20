@@ -107,22 +107,24 @@ function MapPage() {
   };
 
   return (
-    <div className="yeogi-container map-page">
+    <div className="yeogi-container">
       <Header title="지도" showBackButton={true} centerTitle={true} />
-      <main className="yeogi-main">
-        <div className="search-container">
-          <input
-            type="text"
-            value={searchKeyword}
-            onChange={(e) => setSearchKeyword(e.target.value)}
-            placeholder="위치 검색"
-          />
-          <button onClick={handleSearch}>검색</button>
-        </div>
-        <div ref={mapRef} className="map-container">
-          {selectedHotel && <HotelInfo hotel={selectedHotel} />}
-        </div>
-      </main>
+      <div className="yeogi-content">
+        <main className="yeogi-main map-page-content">
+          <div className="search-container">
+            <input
+              type="text"
+              value={searchKeyword}
+              onChange={(e) => setSearchKeyword(e.target.value)}
+              placeholder="위치 검색"
+            />
+            <button onClick={handleSearch}>검색</button>
+          </div>
+          <div ref={mapRef} className="map-container">
+            {selectedHotel && <HotelInfo hotel={selectedHotel} />}
+          </div>
+        </main>
+      </div>
       <Footer />
     </div>
   );

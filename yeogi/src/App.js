@@ -14,6 +14,7 @@ import MapPage from "./MapPage";
 import AccommodationDetailPage from "./pages/AccommodationDetailPage";
 import MyPage from "./pages/MyPage";
 import api from "./api/axiosConfig";
+import SearchPage from "./pages/SearchPage";
 import ReservationPage from "./pages/ReservationPage";
 import ReservationCompletePage from "./ReservationCompletePage";
 import ReservationFailPage from "./pages/ReservationFailPage";
@@ -77,6 +78,7 @@ function App() {
           </PrivateRoute>
         }
       />
+      <Route path="/search" element={<SearchPage />} />
       <Route
         path="/mapPage"
         element={

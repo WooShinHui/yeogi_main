@@ -163,54 +163,6 @@ app.get("/api/likes/:userId", authenticateToken, async (req, res) => {
   }
 });
 
-app.get("/api/accommodations/search", async (req, res) => {
-  console.log("Received request with query:", req.query);
-  const { location, checkIn, checkOut, guests } = req.query;
-
-  try {
-    let query = `
-      SELECT DISTINCT a.* 
-      FROM accommodations a
-      WHERE a.location LIKE ?
-    `;
-
-    const params = [`%${location}%`];
-
-    if (guests && !isNaN(guests)) {
-      query += ` AND a.max_guests >= ?`;
-      params.push(parseInt(guests, 10));
-    }
-
-    if (checkIn && checkOut) {
-      query += `
-        AND NOT EXISTS (
-          SELECT 1
-          FROM bookings b
-          WHERE b.accommodation_id = a.id
-            AND b.status != 'cancelled'
-            AND (
-              (b.check_in_date <= ? AND b.check_out_date > ?)
-              OR (b.check_in_date < ? AND b.check_out_date >= ?)
-              OR (? <= b.check_in_date AND ? > b.check_in_date)
-            )
-        )
-      `;
-      params.push(checkOut, checkIn, checkOut, checkOut, checkIn, checkOut);
-    }
-
-    console.log("Executing query:", query);
-    console.log("Query parameters:", params);
-
-    const results = await queryDatabase(query, params);
-    console.log("Query results:", results);
-
-    res.json(results);
-  } catch (error) {
-    console.error("숙소 검색 중 오류 발생:", error);
-    res.status(500).json({ error: "서버 오류가 발생했습니다." });
-  }
-});
-
 // 특정 숙소의 예약 가능 여부 확인 API
 app.get("/api/accommodations/:id/availability", async (req, res) => {
   try {
@@ -246,7 +198,50 @@ app.get("/api/accommodations/:id/availability", async (req, res) => {
     res.status(500).json({ error: "서버 오류가 발생했습니다." });
   }
 });
+// 검색 기록 저장 API
+app.post("/api/search-history", authenticateToken, async (req, res) => {
+  const { keyword } = req.body;
+  const userId = req.user.id;
 
+  try {
+    await queryDatabase(
+      "INSERT INTO search_history (user_id, keyword) VALUES (?, ?)",
+      [userId, keyword]
+    );
+    res.json({ message: "검색 기록이 저장되었습니다." });
+  } catch (error) {
+    console.error("검색 기록 저장 중 오류 발생:", error);
+    res.status(500).json({ error: "서버 오류가 발생했습니다." });
+  }
+});
+
+// 추천 호텔 조회 라우트 수정
+app.get("/recommended-hotels", authenticateToken, async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    // 사용자의 최근 검색어 가져오기
+    const [recentSearch] = await queryDatabase(
+      "SELECT keyword FROM search_history WHERE user_id = ? ORDER BY search_date DESC LIMIT 1",
+      [userId]
+    );
+
+    let query = "SELECT * FROM accommodations";
+    let params = [];
+
+    if (recentSearch && recentSearch.keyword) {
+      query += " WHERE name LIKE ? OR location LIKE ?";
+      params = [`%${recentSearch.keyword}%`, `%${recentSearch.keyword}%`];
+    }
+
+    query += " LIMIT 10"; // 최대 10개의 추천 숙소 표시
+
+    const results = await queryDatabase(query, params);
+    res.json(results);
+  } catch (error) {
+    handleDatabaseError(res, error, "추천 호텔 조회 중 오류 발생:");
+  }
+});
 // 예약 생성 API
 app.post("/api/bookings", authenticateToken, async (req, res) => {
   try {
@@ -790,40 +785,63 @@ app.get("/Yeogi", (req, res) => {
   }
 });
 
-app.get("/search", async (req, res) => {
-  const { location, checkIn, checkOut, guests } = req.query;
-
-  let query = "SELECT * FROM accommodations WHERE 1=1";
-  const queryParams = [];
-
-  if (location) {
-    query += " AND location LIKE ?";
-    queryParams.push(`%${location}%`);
-  }
-
-  if (checkIn && checkOut) {
-    query += ` AND id NOT IN (
-      SELECT accommodation_id FROM bookings
-      WHERE (check_in <= ? AND check_out >= ?)
-      OR (check_in <= ? AND check_out >= ?)
-      OR (check_in >= ? AND check_out <= ?)
-    )`;
-    queryParams.push(checkOut, checkIn, checkIn, checkOut, checkIn, checkOut);
-  }
-
-  if (guests) {
-    query += " AND max_guests >= ?";
-    queryParams.push(parseInt(guests));
-  }
+app.get("/api/accommodations/search", async (req, res) => {
+  console.log("Received request with query:", req.query);
+  const { location, checkIn, checkOut, guests, type } = req.query;
 
   try {
-    const results = await queryDatabase(query, queryParams);
+    let query = `
+      SELECT DISTINCT a.* 
+      FROM accommodations a
+      WHERE 1=1
+    `;
+
+    const params = [];
+
+    if (location) {
+      query += ` AND a.location LIKE ?`;
+      params.push(`%${location}%`);
+    }
+
+    if (guests && !isNaN(guests)) {
+      query += ` AND a.max_guests >= ?`;
+      params.push(parseInt(guests, 10));
+    }
+
+    if (type) {
+      query += ` AND a.type = ?`;
+      params.push(type);
+    }
+
+    if (checkIn && checkOut) {
+      query += `
+        AND NOT EXISTS (
+          SELECT 1
+          FROM bookings b
+          WHERE b.accommodation_id = a.id
+            AND b.status != 'cancelled'
+            AND (
+              (b.check_in_date <= ? AND b.check_out_date > ?)
+              OR (b.check_in_date < ? AND b.check_out_date >= ?)
+              OR (? <= b.check_in_date AND ? > b.check_in_date)
+            )
+        )
+      `;
+      params.push(checkOut, checkIn, checkOut, checkOut, checkIn, checkOut);
+    }
+
+    console.log("Executing query:", query);
+    console.log("Query parameters:", params);
+
+    const results = await queryDatabase(query, params);
+    console.log("Query results:", results);
+
     res.json(results);
   } catch (error) {
-    handleDatabaseError(res, error, "검색 쿼리 실행 중 오류 발생:");
+    console.error("숙소 검색 중 오류 발생:", error);
+    res.status(500).json({ error: "서버 오류가 발생했습니다." });
   }
 });
-
 app.get("/accommodations/:id", async (req, res) => {
   const { id } = req.params;
   try {
