@@ -1,0 +1,10 @@
+id,name,location,price,max_guests,description,image_url,available_from,available_to,latitude,longitude,admin_id,type
+1,"서울 그랜드 호텔","서울특별시 중구",150000.00,4,"서울 중심부에 위치한 고급 호텔",https://www.swissgrand.co.kr/wp-content/uploads/sites/103/2020/10/main_image2200x1200_03-1-2200x1200.jpg,2023-05-01,2023-07-31,37.56650000,126.97800000,NULL,호텔
+2,"부산 오션 뷰 리조트","부산광역시 해운대구",200000.00,6,"해운대 해변이 보이는 럭셔리 리조트",https://www.banyantreehaeundaebusan.com/wp-content/uploads/2024/10/main_video_thum_02_1.jpg,2023-08-31,2023-09-05,35.17960000,129.07560000,NULL,리조트
+3,"제주 힐링 펜션","제주특별자치도 서귀포시",100000.00,2,"제주의 자연 속에서 휴식을 취할 수 있는 펜션",https://dynamic-media-cdn.tripadvisor.com/media/photo-o/11/cf/aa/f8/caption.jpg?w=1200&h=-1&s=1,2023-09-30,2023-10-05,33.49960000,126.53120000,NULL,펜션
+4,"서울 그랜드 호텔","서울특별시 중구",150000.00,4,"서울 중심부에 위치한 고급 호텔",https://img.hyundaicard.com/upload/cpd/cs/1_1643855346641.jpg,2024-09-30,2024-10-10,37.56420000,127.00160000,NULL,호텔
+5,"부산 오션 뷰 리조트","부산광역시 해운대구",200000.00,6,"해운대 해변이 보이는 럭셔리 리조트",https://lh5.googleusercontent.com/p/AF1QipO3cktZC9yggjTqjJCWD5a6EV0qHOWRd2uiOLs2=w252-h185-k-no,2024-08-30,2024-09-20,35.15450000,129.06000000,NULL,리조트
+6,"제주 힐링 펜션","제주특별자치도 서귀포시",100000.00,2,"제주의 자연 속에서 휴식을 취할 수 있는 펜션",https://cdn.prod.website-files.com/6316f3f75130788ec2d762dd/63da2a7aa0807f4516222c0b_3-min.jpg,2024-10-20,2024-10-25,33.48900000,126.49830000,NULL,펜션
+7,"서울 별숲 글램핑",서울,110000.00,3,"서울에 위치한 별숲 글램핑입니다.",https://www.5gcamp.com/files/camping/2018/11/24/316cf701de552ec86fac15cba860c3f2151124.jpg,NULL,NULL,37.56791292,126.97160007,2,글램핑
+8,"청주 창화빌라",청주,140000.00,2,"청주에 위치한 창화빌라입니다.",https://cdn.hankyung.com/photo/202109/01.27478312.1.jpg,NULL,NULL,36.62260399,127.48598399,2,빌라
+9,"수빈 하우스",제주,8150000.00,2,"수빈이가 운영하는 제주 하우스입니다.",https://cdn.telltrip.com/news/photo/202404/1484_8085_2012.jpg,NULL,NULL,33.44942276,126.63929707,2,호텔

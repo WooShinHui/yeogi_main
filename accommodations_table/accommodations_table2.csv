@@ -1,0 +1,31 @@
+id,name,location,price,max_guests,description,image_url,available_from,available_to,latitude,longitude,admin_id,type
+1,?쒖슱 洹몃옖???명뀛,?쒖슱?밸퀎??以묎뎄,150000,4,?쒖슱 以묒떖遺???꾩튂??怨좉툒 ?명뀛,https://www.swissgrand.co.kr/wp-content/uploads/sites/103/2020/10/main_image2200x1200_03-1-2200x1200.jpg,2023-05-01,2023-07-31,37.5665,126.978,2,?명뀛
+2,遺???ㅼ뀡 酉?由ъ“??遺?곌킅??떆 ?댁슫?援?200000,6,?댁슫? ?대???蹂댁씠????뀛由?由ъ“??https://www.banyantreehaeundaebusan.com/wp-content/uploads/2024/10/main_video_thum_02_1.jpg,2023-08-31,2023-09-05,35.1796,129.0756,2,由ъ“??,,,
+3,?쒖＜ ?먮쭅 ?쒖뀡,?쒖＜?밸퀎?먯튂???쒓??ъ떆,100000,2,?쒖＜???먯뿰 ?띿뿉???댁떇??痍⑦븷 ???덈뒗 ?쒖뀡,https://dynamic-media-cdn.tripadvisor.com/media/photo-o/11/cf/aa/f8/caption.jpg?w=1200&h=-1&s=1,2023-09-30,2023-10-05,33.4996,126.5312,2,?쒖뀡
+4,?쒖슱 洹몃옖???명뀛,?쒖슱?밸퀎??以묎뎄,150000,4,?쒖슱 以묒떖遺???꾩튂??怨좉툒 ?명뀛,https://img.hyundaicard.com/upload/cpd/cs/1_1643855346641.jpg,2024-09-30,2024-10-10,37.5642,127.0016,2,?명뀛
+5,遺???ㅼ뀡 酉?由ъ“??遺?곌킅??떆 ?댁슫?援?183500,6,?댁슫? ?대???蹂댁씠????뀛由?由ъ“??https://lh5.googleusercontent.com/p/AF1QipO3cktZC9yggjTqjJCWD5a6EV0qHOWRd2uiOLs2=w252-h185-k-no,2024-08-30,2024-09-20,35.1545,129.06,2,由ъ“??,,,
+6,?쒖＜ ?먮쭅 ?쒖뀡,?쒖＜?밸퀎?먯튂???쒓??ъ떆,133500,2,?쒖＜???먯뿰 ?띿뿉???댁떇??痍⑦븷 ???덈뒗 ?쒖뀡,https://cdn.prod.website-files.com/6316f3f75130788ec2d762dd/63da2a7aa0807f4516222c0b_3-min.jpg,2024-10-20,2024-10-25,33.489,126.4983,2,?쒖뀡
+7,?쒖슱 蹂꾩댉 湲?⑦븨,?쒖슱,163200,3,?쒖슱???꾩튂??蹂꾩댉 湲?⑦븨,https://www.5gcamp.com/files/camping/2018/11/24/316cf701de552ec86fac15cba860c3f2151124.jpg,NULL,NULL,37.56791292,126.9716001,2,湲?⑦븨
+8,泥?＜ 李쏀솕鍮뚮씪,泥?＜,175000,2,泥?＜???꾩튂??李쏀솕鍮뚮씪,https://cdn.hankyung.com/photo/202109/01.27478312.1.jpg,NULL,NULL,36.62260399,127.485984,2,鍮뚮씪
+9,?쒖＜ ?깃??щⅤ ?명뀛,?쒖＜,162000,2,?쒖＜???꾩튂???명뀛,https://cdn.telltrip.com/news/photo/202404/1484_8085_2012.jpg,NULL,NULL,33.44942276,126.6392971,2,?명뀛
+10,泥?＜ 臾댁씤??泥?＜,30000,2,泥?＜???꾩튂??臾댁씤??https://yaimg.yanolja.com/v5/2021/01/06/18/5ff57fc3846299.75941836.jpg,,,36.63584236,127.49073809171358혻,2,紐⑦뀛,,
+11,遺???섏슫??媛??,遺?곌킅??떆 ?댁슫?援?175200,4,遺?곗뿉 ?꾩튂???섏슫??媛??https://dynamic-media-cdn.tripadvisor.com/media/photo-o/2a/bb/c8/29/14.jpg?w=700&h=-1&s=1,,,35.1746169,129.1378583511693혻,2,?명뀛,,
+12,?몄씤??議댁뒪,媛뺣쫱,183000,4,媛뺣쫱???꾩튂???몄씤??議댁뒪 ?명뀛,https://yaimg.yanolja.com/v5/2022/10/17/15/1280/634d7563600ed4.17945107.jpg,,,37.78308501,37.78308501,2,?명뀛
+13,?섏븞蹂??먮쭅?명뀛,異⑹＜,132100,4,異⑹＜???꾩튂???섏븞蹂??⑥쿇 ?먮쭅?명뀛,https://www.cbiz.kr/news/photo/201610/8339_8976_4623.jpg,,,36.98710294,127.91963441332565혻,2,紐⑦뀛
+14,?먰듉 寃쎌＜,寃쎌＜,136500,4,寃쎌＜???꾩튂???먰듉 ?숈냼,https://dynamic-media-cdn.tripadvisor.com/media/photo-o/2a/ed/68/58/exterior.jpg?w=1200&h=-1&s=1,,,35.83690737,129.23206549869454혻,2,?명뀛
+15,?쒗솕由ъ“???ㅼ븙 ?섎씪???띿큹,130000,6,?띿큹 ?곗븙???꾩튂???ㅼ븙 ?섎씪??https://dynamic-media-cdn.tripadvisor.com/media/photo-o/18/f3/19/8c/caption.jpg?w=1000&h=-1&s=1,,,38.21200982,128.59587024298588혻,2,由ъ“??,,
+16,?ъ닔 ?ㅼ씠?섎? 由ъ“???ъ닔,123550,8,?ъ닔 ?ㅼ씠?섎? 由ъ“??https://dynamic-media-cdn.tripadvisor.com/media/photo-o/18/96/87/31/caption.jpg?w=1000&h=-1&s=1,,,34.73402299,127.69681859625463혻,2,由ъ“??,,
+17,?꾩＜ ?쒖삦,?꾩＜,125800,6,?꾩＜???꾩튂???쒖삦,"https://dynamic-media-cdn.tripadvisor.com/media/photo-o/18/c9/ff/02/jeonju-hanok-village.jpg?w=1200&h=-1&s=1 1x,https://dynamic-media-cdn.tripadvisor.com/media/photo-o/18/c9/ff/02/jeonju-hanok-village.jpg?w=1400&h=-1&s=1 2x",,,35.81959466,127.11058042842589혻,2,?쒖삦
+18,寃쎌＜ ?쒖삦 ?ㅽ뀒??寃쎌＜,130000,4,寃쎌＜???꾩튂???쒖삦 ?ㅽ뀒??https://dynamic-media-cdn.tripadvisor.com/media/photo-o/0c/e0/a3/c3/20160908-184849-largejpg.jpg?w=300&h=300&s=1,,,35.84355348,129.21180093017136혻,2,?쒖삦,,
+19,媛???鍮뚮씪,媛??156000,2,媛?됱뿉 ?꾩튂??鍮좎? ?鍮뚮씪,https://dynamic-media-cdn.tripadvisor.com/media/photo-o/13/47/96/65/1528019665092-largejpg.jpg?w=300&h=300&s=1,,,37.82994157,127.5142602,2,?쒖뀡,
+20,?됲깮 ?명뀛,?됲깮,165000,2,?됲깮???꾩튂???명뀛,https://dynamic-media-cdn.tripadvisor.com/media/photo-o/12/2d/f5/7b/caption.jpg?w=300&h=300&s=1,,,36.99140213,127.11530895135851혻,2,?명뀛
+21,?쒕?????뀛由??명뀛,?몄쿇 ?쒕???132000,4,?쒕??꾩뿉 ?꾩튂????뀛由?由ъ“??https://dynamic-media-cdn.tripadvisor.com/media/photo-o/17/22/1d/46/hotel-exterior.jpg?w=300&h=300&s=1,,,37.16730691,126.6176496,2,由ъ“??,,
+22,?숉깂 ?좊씪 ?ㅽ뀒???숉깂,135100,6,?숉깂???꾩튂???좊씪 ?ㅽ뀒??https://dynamic-media-cdn.tripadvisor.com/media/photo-o/1b/a4/2e/e3/caption.jpg?w=300&h=-1&s=1,,,37.20581663,127.07453995045164혻,2,?명뀛,,
+23,?섏썝 ?쇰쭏???명뀛,?섏썝,121000,8,?섏썝???꾩튂???꾨━誘몄뾼 ?명뀛,https://dynamic-media-cdn.tripadvisor.com/media/photo-o/2a/ec/f3/6a/exterior-view.jpg?w=300&h=300&s=1,,,37.25470826,127.03310642940252혻,2,?명뀛
+24,?ㅼ궛 湲?④????ㅼ궛,135400,6,?ㅼ궛???꾩튂??湲?④???https://yaimg.yanolja.com/v5/2024/05/09/09/1280/663c9a6ee99b36.29204807.jpg,,,37.14771594,127.07556349500183혻,2,湲?⑦븨,,
+25,媛???????ㅽ뙆,媛??130000,6,媛?됱뿉 ?꾩튂??鍮좎? ?鍮뚮씪,https://pix10.agoda.net/hotelImages/28258513/-1/5530515be68de56f4748044f30718346.jpg?ce=0&s=702x392,,,37.82959134,127.52825203743942혻,2,?쒖뀡,
+26,?묒뼇 寃뚯뒪?명븯?곗뒪,?묒뼇,144200,4,?묒뼇???꾩튂??寃뚯뒪???섏슦??https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS8vfrKb2csm1ZIQxHCrYOpN-VhrmIY8UUinA&s,,,38.09647839,128.65390631002754혻,2,寃뚯뒪?명븯?곗뒪,
+27,?몄궛 ?ㅼ뀡酉??쒖뀡,?몄궛,135000,2,?몄궛???꾩튂???ㅼ뀡酉??쒖뀡,https://cf.bstatic.com/static/img/theme-index/bg_placestostay/723e0fca72a9e45222ea74a1df3d79b544d009e0.jpg,,,35.55999156,129.406348332153혻,2,?쒖뀡
+28,?몄쥌 ?ㅼ삩???몄쥌,130000,2,?몄쥌???꾩튂??湲?⑦븨,https://daonsup.com/mobile/images/main/m_cont6.jpg,,,36.47653843,127.28593512235108혻,2,湲?⑦븨,
+29,?泥??곗씠?ㅽ봽,?泥?123100,2,?泥쒖뿉 ?꾩튂???숈냼,https://dayoff.co.kr/whatsinmytrip/wp-content/uploads/2024/06/%EB%8C%80%EC%B2%9C%EC%88%99%EC%86%8C%EC%8D%B8%EB%84%A4%EC%9D%BC-1-900x675.jpg,,,36.31253218,126.51497051391588혻,2,?쒖뀡,
+30,?쒖븞 ?쇳떚留덈Ⅴ?쒖뀡 湲?⑦븨,?쒖븞,151500,4,?쒖븞 ?쇳떚留덈Ⅴ?쒖뀡 湲?⑦븨,https://image.goodchoice.kr/resize_792x480/affiliate/2024/03/12/09/cadd984c306a4708a15c3a864d2263ba.jpg,,,36.72589919,126.2612744,2,湲?⑦븨
