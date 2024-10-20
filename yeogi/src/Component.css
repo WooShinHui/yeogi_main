@@ -3,8 +3,9 @@
 
 :root {
   --main-color: #0077cc;
+  --secondary-color: #f0f0f0;
   --main-text-color: #333;
-  --main-bg-color: #f5f5f5;
+  --main-bg-color: #ffffff;
   --main-margin-1: 8px;
   --main-margin-2: 16px;
   --main-margin-3: 24px;
@@ -27,42 +28,38 @@ body {
   font-weight: var(--main-text-weight-1);
   line-height: 150%;
   color: var(--main-text-color);
-  background-color: var(--main-bg-color);
+  background-color: var(--secondary-color);
 }
-.content {
-  flex: 1;
-  overflow-y: auto;
-}
+
 .App {
   display: flex;
   flex-direction: column;
   align-items: center;
   min-height: 100vh;
   width: 360px;
-  background-color: white;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  background-color: var(--main-bg-color);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
   overflow-y: auto;
   position: relative;
+  border-radius: 20px;
 }
 
 .App-header {
-  color: var(--main-text-color);
-  font-size: var(--main-text-size-2);
-  margin-top: var(--main-margin-3);
+  color: var(--main-color);
+  font-size: var(--main-text-size-3);
+  margin-top: var(--main-margin-4);
   font-weight: var(--main-text-weight-3);
-}
-.Login-Button {
-  margin-top: auto;
-  width: 100%;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .Input {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 360px;
-  gap: var(--main-margin-2);
-  padding: var(--main-margin-2);
+  width: 100%;
+  gap: var(--main-margin-3);
+  padding: var(--main-margin-3);
 }
 
 .Input input {
@@ -70,18 +67,27 @@ body {
   width: 100%;
   max-width: 288px;
   border: none;
-  border-bottom: solid 1px var(--main-text-color);
-  font-size: var(--main-text-size-1);
-  padding: 0 var(--main-margin-1);
+  border-bottom: solid 2px var(--secondary-color);
+  font-size: var(--main-text-size-2);
+  padding: 0 var(--main-margin-2);
+  transition: border-color 0.3s;
+}
+
+.Input input:focus {
+  outline: none;
+  border-bottom-color: var(--main-color);
 }
 
 .Birth {
   width: 100%;
   max-width: 288px;
+  margin-top: var(--main-margin-3);
 }
 
 .Birth p {
-  margin-bottom: var(--main-margin-1);
+  margin-bottom: var(--main-margin-2);
+  color: var(--main-color);
+  font-weight: var(--main-text-weight-2);
 }
 
 .Input-Birth {
@@ -91,47 +97,83 @@ body {
 }
 
 .Input-Birth input {
-  height: 32px;
+  height: 48px;
+}
+
+.Login-Button {
+  width: 100%;
+  margin-top: auto;
 }
 
 .Button-Login {
   width: 100%;
-  height: 64px;
+  height: 56px;
   border: none;
   background-color: var(--main-color);
   color: white;
   font-size: var(--main-text-size-2);
   font-weight: var(--main-text-weight-3);
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: background-color 0.3s, transform 0.1s;
 }
 
 .Button-Login:hover {
   background-color: #005fa3;
 }
 
+.Button-Login:active {
+  transform: scale(0.98);
+}
+.Verification-Code {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  gap: var(--main-margin-2);
+}
+
+.Code-Input {
+  height: 48px;
+  width: 100%;
+  max-width: 288px;
+  border: none;
+  border-bottom: solid 2px var(--secondary-color);
+  font-size: var(--main-text-size-2);
+  padding: 0 var(--main-margin-2);
+  transition: border-color 0.3s;
+  margin-bottom: var(--main-margin-2);
+}
+
+.Code-Input:focus {
+  outline: none;
+  border-bottom-color: var(--main-color);
+}
 .Error {
-  color: red;
+  color: #ff4d4d;
   font-size: var(--main-text-size-1);
   margin-top: var(--main-margin-1);
+  font-weight: var(--main-text-weight-2);
 }
+
 .Error p {
   margin: 0;
 }
+
 .SNS-Login {
   width: 100%;
   display: flex;
   justify-content: center;
-  margin-top: var(--main-margin-3);
+  margin-top: var(--main-margin-4);
+  padding: 0 var(--main-margin-3);
 }
 
 .SNS-Login button {
   width: 100%;
   max-width: 294px;
-  height: 48px;
+  height: 56px;
   background-color: #fee500;
   border: none;
-  border-radius: 12px;
+  border-radius: 28px;
   font-size: var(--main-text-size-2);
   font-weight: var(--main-text-weight-2);
   color: #000000;
@@ -139,11 +181,15 @@ body {
   display: flex;
   align-items: center;
   padding: 0 var(--main-margin-2);
-  transition: background-color 0.3s;
+  transition: background-color 0.3s, transform 0.1s;
 }
 
 .SNS-Login button:hover {
   background-color: #fdd835;
+}
+
+.SNS-Login button:active {
+  transform: scale(0.98);
 }
 
 .SNS-Login button img {
@@ -156,25 +202,15 @@ body {
   flex-grow: 1;
   text-align: center;
 }
-.header-title {
-  font-size: 24px;
-}
 
-.center-title {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  text-align: center;
-}
 .bottom-navigation {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  width: 100%;
   height: 72px;
-  background-color: #ffffff;
+  background-color: var(--main-bg-color);
   display: flex;
   justify-content: space-around;
   align-items: center;
-  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+  border-bottom-left-radius: 20px;
+  border-bottom-right-radius: 20px;
 }

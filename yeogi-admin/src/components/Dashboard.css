@@ -133,3 +133,73 @@
     grid-row: auto;
   }
 }
+.monthly-revenue {
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin-bottom: 20px;
+  height: auto;
+}
+
+.monthly-revenue .card-title {
+  font-size: 1.2rem;
+  color: #333;
+  margin-bottom: 10px;
+  text-align: left;
+}
+
+.monthly-revenue .card-value {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #007bff;
+  margin: 0 0 16px 0;
+  text-align: right; /* 오른쪽 정렬로 변경 */
+}
+.monthly-revenue .card-title {
+  font-weight: bold;
+  text-align: right; /* 오른쪽 정렬로 변경 */
+}
+.monthly-revenue .revenue-chart {
+  height: 300px;
+  margin-top: 20px;
+}
+
+.monthly-revenue .recharts-wrapper {
+  margin: 0 auto;
+}
+
+.monthly-revenue .recharts-surface {
+  overflow: visible;
+}
+
+.monthly-revenue .recharts-cartesian-grid-horizontal line,
+.monthly-revenue .recharts-cartesian-grid-vertical line {
+  stroke: #f0f0f0;
+}
+
+.monthly-revenue .recharts-cartesian-axis-tick-value {
+  font-size: 0.8rem;
+  fill: #666;
+}
+
+.monthly-revenue .recharts-tooltip-wrapper {
+  background-color: rgba(255, 255, 255, 0.9);
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.monthly-revenue .recharts-default-tooltip {
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+.guest-phone {
+  flex: 1;
+  text-align: left;
+  padding: 0 10px 0 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

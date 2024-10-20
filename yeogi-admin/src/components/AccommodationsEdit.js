@@ -79,6 +79,7 @@ function AccommodationEdit() {
       </select>
       <form onSubmit={handleSubmit}>
         <div className="form-group">
+          <label htmlFor="name">숙소 이름</label>
           <input
             type="text"
             id="name"
@@ -90,6 +91,7 @@ function AccommodationEdit() {
           />
         </div>
         <div className="form-group">
+          <label htmlFor="location">위치</label>
           <input
             type="text"
             id="location"
@@ -101,6 +103,7 @@ function AccommodationEdit() {
           />
         </div>
         <div className="form-group">
+          <label htmlFor="price">가격</label>
           <input
             type="number"
             id="price"
@@ -112,6 +115,7 @@ function AccommodationEdit() {
           />
         </div>
         <div className="form-group">
+          <label htmlFor="max_guests">최대 인원</label>
           <input
             type="number"
             id="max_guests"
@@ -123,6 +127,7 @@ function AccommodationEdit() {
           />
         </div>
         <div className="form-group">
+          <label htmlFor="description">설명</label>
           <textarea
             id="description"
             name="description"

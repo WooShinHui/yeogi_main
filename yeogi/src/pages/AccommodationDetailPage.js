@@ -46,7 +46,7 @@ function AccommodationDetailPage() {
       })
       .catch((error) => {
         console.error("사용자 정보 가져오기 실패:", error);
-        navigate("/login");
+        navigate("/");
       });
 
     const searchParams = new URLSearchParams(location.search);

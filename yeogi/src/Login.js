@@ -7,6 +7,8 @@ function Login() {
   const [password, setPassword] = useState("");
   const [passwordCheck, setPasswordCheck] = useState("");
   const [birth, setBirth] = useState("");
+  const [nickname, setNickname] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [verificationCode, setVerificationCode] = useState("");
   const [isCodeSent, setIsCodeSent] = useState(false);
   const [emailError, setEmailError] = useState("");
@@ -14,7 +16,7 @@ function Login() {
   const [error, setError] = useState("");
   const [generatedCode, setGeneratedCode] = useState("");
   const [passwordMatchError, setPasswordMatchError] = useState("");
-  const [birthError, setBirthError] = useState(""); // 생년월일 오류 상태 추가
+  const [birthError, setBirthError] = useState("");
 
   const navigate = useNavigate();
 
@@ -28,10 +30,10 @@ function Login() {
       setPasswordMatchError("");
     }
     if (birth.length !== 8) {
-      setBirthError("생년월일을 확인하세요."); // 생년월일 오류 메시지 설정
+      setBirthError("생년월일을 확인하세요.");
       hasError = true;
     } else {
-      setBirthError(""); // 오류 메시지 초기화
+      setBirthError("");
     }
     if (hasError) return;
 
@@ -41,7 +43,7 @@ function Login() {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ email, password, birth }),
+      body: JSON.stringify({ email, password, birth, nickname, phoneNumber }),
     })
       .then((response) => response.json())
       .then((data) => {
@@ -66,7 +68,7 @@ function Login() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email, password, birth }),
+        body: JSON.stringify({ email, password, birth, nickname, phoneNumber }),
       })
         .then((response) => response.json())
         .then((data) => {
@@ -84,7 +86,7 @@ function Login() {
   return (
     <div className="App">
       <div className="App-header">
-        <p>로그인</p>
+        <p>회원가입</p>
       </div>
       <div className="Input">
         <input
@@ -128,6 +130,18 @@ function Login() {
             <p>{passwordMatchError}</p>
           </div>
         )}
+        <input
+          className="Nickname"
+          placeholder="닉네임"
+          value={nickname}
+          onChange={(e) => setNickname(e.target.value)}
+        />
+        <input
+          className="PhoneNumber"
+          placeholder="전화번호"
+          value={phoneNumber}
+          onChange={(e) => setPhoneNumber(e.target.value)}
+        />
       </div>
       <div className="Birth">
         <p>생년월일</p>
@@ -151,8 +165,9 @@ function Login() {
             회원가입
           </button>
         ) : (
-          <>
+          <div className="Verification-Code">
             <input
+              className="Code-Input"
               placeholder="인증 코드 입력"
               value={verificationCode}
               onChange={(e) => setVerificationCode(e.target.value)}
@@ -161,7 +176,7 @@ function Login() {
               인증 코드 확인
             </button>
             {error && <div className="Error">{error}</div>}
-          </>
+          </div>
         )}
       </div>
     </div>

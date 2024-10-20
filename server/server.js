@@ -386,9 +386,9 @@ app.post("/request-verification-code", async (req, res) => {
 });
 
 app.post("/register", async (req, res) => {
-  const { email, password, birth } = req.body;
+  const { email, password, birth, nickname, phone_number } = req.body;
 
-  if (!email || !password || !birth) {
+  if (!email || !password || !birth || !nickname || !phone_number) {
     return res.status(400).json({ error: "모든 필드를 입력해야 합니다." });
   }
 
@@ -404,8 +404,8 @@ app.post("/register", async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
     await queryDatabase(
-      "INSERT INTO yeogi_main (email, password, birth) VALUES (?, ?, ?)",
-      [email, hashedPassword, birth]
+      "INSERT INTO yeogi_main (email, password, birth, nickname, phone_number) VALUES (?, ?, ?, ?, ?)",
+      [email, hashedPassword, birth, nickname, phone_number]
     );
 
     res.json({ message: "사용자 등록 완료" });
@@ -414,34 +414,6 @@ app.post("/register", async (req, res) => {
   }
 });
 
-app.post("/login", async (req, res) => {
-  const { email, password } = req.body;
-
-  try {
-    const results = await queryDatabase(
-      "SELECT * FROM yeogi_main WHERE email = ?",
-      [email]
-    );
-
-    if (results.length === 0) {
-      return res
-        .status(401)
-        .json({ error: "이메일 또는 비밀번호가 잘못되었습니다." });
-    }
-
-    const user = results[0];
-    const isMatch = await bcrypt.compare(password, user.password);
-
-    if (isMatch) {
-      req.session.userId = user.id;
-      res.json({ message: "로그인 성공" });
-    } else {
-      res.status(401).json({ error: "이메일 또는 비밀번호가 잘못되었습니다." });
-    }
-  } catch (error) {
-    handleDatabaseError(res, error, "로그인 처리 중 오류 발생:");
-  }
-});
 // 카카오페이 결제 요청
 app.post("/api/kakao-pay", authenticateToken, async (req, res) => {
   const { accommodationId, checkIn, checkOut, guests, totalPrice } = req.body;
@@ -885,7 +857,7 @@ app.post("/api/login", async (req, res) => {
 
     console.log("사용자 조회 시작");
     const users = await queryDatabase(
-      "SELECT * FROM yeogi_main WHERE email = ?",
+      "SELECT id, email, password, nickname, phone_number FROM yeogi_main WHERE email = ?",
       [email]
     );
     console.log("사용자 조회 결과:", users);
@@ -917,7 +889,16 @@ app.post("/api/login", async (req, res) => {
     );
     console.log("JWT 토큰 생성 완료");
 
-    res.json({ message: "로그인 성공", token });
+    res.json({
+      message: "로그인 성공",
+      token,
+      user: {
+        id: user.id,
+        email: user.email,
+        nickname: user.nickname,
+        phone_number: user.phone_number,
+      },
+    });
   } catch (error) {
     console.error("로그인 처리 중 오류 발생:", error);
     res.status(500).json({ error: "서버 오류가 발생했습니다." });
@@ -1140,24 +1121,26 @@ app.get("/api/admin/dashboard", authenticateToken, async (req, res) => {
     // 체크인/체크아웃 데이터, 총 예약 수, 이번 달 매출, 평균 숙박 일수 조회
     const [dashboardStats] = await queryDatabase(
       `
-      SELECT 
-        SUM(CASE WHEN DATE(check_in_date) = CURDATE() THEN 1 ELSE 0 END) as today_check_ins,
-        SUM(CASE WHEN DATE(check_out_date) = CURDATE() THEN 1 ELSE 0 END) as today_check_outs,
-        COUNT(*) as total_bookings,
-        SUM(CASE WHEN MONTH(check_in_date) = MONTH(CURDATE()) AND YEAR(check_in_date) = YEAR(CURDATE()) THEN price ELSE 0 END) as monthly_revenue,
-        AVG(DATEDIFF(check_out_date, check_in_date)) as average_stay_duration
-      FROM bookings b
-      JOIN accommodations a ON b.accommodation_id = a.id
-      WHERE a.admin_id = ?
-    `,
+  SELECT 
+    SUM(CASE WHEN DATE(b.check_in_date) = CURDATE() THEN 1 ELSE 0 END) as today_check_ins,
+    SUM(CASE WHEN DATE(b.check_out_date) = CURDATE() THEN 1 ELSE 0 END) as today_check_outs,
+    COUNT(*) as total_bookings,
+    SUM(CASE WHEN MONTH(b.check_in_date) = MONTH(CURDATE()) AND YEAR(b.check_in_date) = YEAR(CURDATE()) THEN b.total_price ELSE 0 END) as monthly_revenue,
+    AVG(DATEDIFF(b.check_out_date, b.check_in_date)) as average_stay_duration
+  FROM bookings b
+  JOIN accommodations a ON b.accommodation_id = a.id
+  WHERE a.admin_id = ?
+  `,
       [req.user.id]
     );
+
+    console.log("Dashboard stats:", dashboardStats);
 
     // 최근 예약 데이터 조회 (이메일과 닉네임 포함)
     const recentBookings = await queryDatabase(
       `
       SELECT b.id, a.name as accommodation_name, b.check_in_date, b.check_out_date,
-             u.email, u.nickname
+             u.email, u.nickname, u.phone_number
       FROM bookings b
       JOIN accommodations a ON b.accommodation_id = a.id
       JOIN yeogi_main u ON b.user_id = u.id
@@ -1168,6 +1151,26 @@ app.get("/api/admin/dashboard", authenticateToken, async (req, res) => {
       [req.user.id]
     );
 
+    console.log("Recent bookings:", recentBookings); // 로그 추가
+
+    // 이번 달 일별 매출 데이터 조회
+    const dailyRevenue = await queryDatabase(
+      `
+  SELECT DATE(b.check_in_date) as date, 
+         SUM(b.total_price) as revenue
+  FROM bookings b
+  JOIN accommodations a ON b.accommodation_id = a.id
+  WHERE a.admin_id = ?
+    AND YEAR(b.check_in_date) = YEAR(CURDATE())
+    AND MONTH(b.check_in_date) = MONTH(CURDATE())
+  GROUP BY DATE(b.check_in_date)
+  ORDER BY DATE(b.check_in_date)
+  `,
+      [req.user.id]
+    );
+
+    console.log("Daily revenue data:", dailyRevenue);
+
     // 결과 합치기
     const dashboardData = {
       today_check_ins: Number(dashboardStats.today_check_ins) || 0,
@@ -1176,11 +1179,20 @@ app.get("/api/admin/dashboard", authenticateToken, async (req, res) => {
       monthly_revenue: Number(dashboardStats.monthly_revenue) || 0,
       average_stay_duration: Number(dashboardStats.average_stay_duration) || 0,
       recentBookings,
+      dailyRevenue,
     };
 
-    console.log("Dashboard data:", dashboardData);
+    console.log("Full dashboard data:", dashboardData);
 
-    res.json(dashboardData);
+    res.json({
+      today_check_ins: Number(dashboardStats.today_check_ins) || 0,
+      today_check_outs: Number(dashboardStats.today_check_outs) || 0,
+      total_bookings: Number(dashboardStats.total_bookings) || 0,
+      monthly_revenue: Number(dashboardStats.monthly_revenue) || 0,
+      average_stay_duration: Number(dashboardStats.average_stay_duration) || 0,
+      recentBookings,
+      dailyRevenue,
+    });
   } catch (error) {
     console.error("대시보드 데이터 조회 오류:", error);
     res.status(500).json({ error: "서버 오류가 발생했습니다." });
@@ -1371,7 +1383,7 @@ app.get("/api/admin/bookings", authenticateToken, async (req, res) => {
     const [bookings, [totalCount]] = await Promise.all([
       queryDatabase(
         `SELECT b.id, b.check_in_date, b.check_out_date, b.guests, 
-                u.email, u.nickname, a.name as accommodation_name
+                u.email, u.nickname, u.phone_number, a.name as accommodation_name
          FROM bookings b
          JOIN yeogi_main u ON b.user_id = u.id
          JOIN accommodations a ON b.accommodation_id = a.id
@@ -1386,8 +1398,10 @@ app.get("/api/admin/bookings", authenticateToken, async (req, res) => {
       ),
     ]);
 
+    console.log("Bookings from database:", bookings); // 로그 추가
+
     res.json({
-      bookings: bookings, // 배열임을 확실히 합니다.
+      bookings: bookings,
       totalPages: Math.ceil(totalCount.count / limit),
       currentPage: page,
     });

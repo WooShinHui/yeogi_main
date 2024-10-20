@@ -13,6 +13,7 @@ import AccommodationEdit from "./components/AccommodationsEdit";
 import BookingManagement from "./components/BookingManagement";
 import Dashboard from "./components/Dashboard";
 import Sidebar from "./components/Sidebar";
+import ProtectedRoute from "./components/ProtectRoute";
 import "./App.css";
 
 function App() {
@@ -27,15 +28,37 @@ function App() {
             <Route path="/admin/redirect" element={<AdminRedirect />} />
             <Route
               path="/admin/register-accommodation"
-              element={<RegisterAccommodation />}
+              element={
+                <ProtectedRoute>
+                  <RegisterAccommodation />
+                </ProtectedRoute>
+              }
             />
-            <Route path="/admin/dashboard" element={<Dashboard />} />
-            <Route path="/admin" element={<Navigate to="/admin/redirect" />} />
+            <Route
+              path="/admin/dashboard"
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            />
             <Route
               path="/admin/accommodation-edit"
-              element={<AccommodationEdit />}
+              element={
+                <ProtectedRoute>
+                  <AccommodationEdit />
+                </ProtectedRoute>
+              }
             />
-            <Route path="/admin/bookings" element={<BookingManagement />} />
+            <Route
+              path="/admin/bookings"
+              element={
+                <ProtectedRoute>
+                  <BookingManagement />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="/admin" element={<Navigate to="/admin/redirect" />} />
             <Route path="*" element={<Navigate to="/admin/login" />} />
           </Routes>
         </main>

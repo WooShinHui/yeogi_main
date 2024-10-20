@@ -18,7 +18,12 @@ function RegisterAccommodation() {
   const navigate = useNavigate();
   const mapRef = useRef(null);
   const markerRef = useRef(null);
-
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/admin/login");
+    }
+  }, [navigate]);
   useEffect(() => {
     initializeMap();
   }, []);

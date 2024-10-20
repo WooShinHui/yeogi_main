@@ -115,6 +115,9 @@ function Yeogi() {
     });
     navigate(`/accommodations/search?${queryParams.toString()}`);
   };
+  const handleHotelClick = (hotelId) => {
+    navigate(`/accommodation/${hotelId}`);
+  };
   return (
     <div className="yeogi-container">
       <Header showMyPage={true} />
@@ -280,7 +283,12 @@ function Yeogi() {
             <div className="recommended-hotels-container">
               <div className="recommended-hotels">
                 {recommendedHotels.map((hotel) => (
-                  <div key={hotel.id} className="hotel-card">
+                  <div
+                    key={hotel.id}
+                    className="hotel-card"
+                    onClick={() => handleHotelClick(hotel.id)}
+                    style={{ cursor: "pointer" }}
+                  >
                     <img src={hotel.image_url} alt={hotel.name} />
                     <h3>{hotel.name}</h3>
                     <p>{hotel.price}원 / 박</p>

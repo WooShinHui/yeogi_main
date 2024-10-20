@@ -15,7 +15,15 @@ function BookingManagement() {
           },
         });
         console.log("서버 응답:", response.data); // 디버깅을 위해 로그 추가
-        setBookings(response.data.bookings || []); // bookings가 없으면 빈 배열 사용
+        if (Array.isArray(response.data.bookings)) {
+          setBookings(response.data.bookings);
+        } else {
+          console.error(
+            "서버에서 받은 bookings가 배열이 아닙니다:",
+            response.data
+          );
+          setBookings([]);
+        }
       } catch (error) {
         console.error("예약 정보 조회 실패:", error);
       }
@@ -61,24 +69,26 @@ function BookingManagement() {
   return (
     <div className="booking-management">
       <h1>예약 관리</h1>
-      {Array.isArray(bookings) && bookings.length > 0 ? (
+      {bookings.length > 0 ? (
         <table className="booking-table">
           <thead>
             <tr>
               <th>예약자</th>
               <th>이메일</th>
+              <th>전화번호</th>
               <th>숙소</th>
               <th>체크인</th>
               <th>체크아웃</th>
               <th>인원</th>
-              <th>액션</th>
+              <th>예약 관리</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody style={{ backgroundColor: "white", opacity: 1 }}>
             {bookings.map((booking) => (
               <tr key={booking.id}>
                 <td>{booking.nickname}</td>
                 <td>{booking.email}</td>
+                <td>{booking.phone_number}</td>
                 <td>{booking.accommodation_name}</td>
                 <td>{formatDate(booking.check_in_date)}</td>
                 <td>{formatDate(booking.check_out_date)}</td>

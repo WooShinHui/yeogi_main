@@ -1,7 +1,16 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { format, parseISO } from "date-fns";
-import { Link } from "react-router-dom";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
 import "./Dashboard.css";
 
 function Dashboard() {
@@ -12,6 +21,7 @@ function Dashboard() {
     monthly_revenue: 0,
     average_stay_duration: 0,
     recentBookings: [],
+    dailyRevenue: [],
   });
 
   useEffect(() => {
@@ -22,6 +32,7 @@ function Dashboard() {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         });
+        console.log("Dashboard data:", response.data);
         setDashboardData(response.data);
       } catch (error) {
         console.error("대시보드 데이터 조회 실패:", error);
@@ -32,14 +43,8 @@ function Dashboard() {
   }, []);
 
   const formatDate = (dateString) => {
-    try {
-      return format(parseISO(dateString), "yyyy-MM-dd");
-    } catch (error) {
-      console.error("날짜 형식 변환 오류:", error);
-      return dateString;
-    }
+    return format(parseISO(dateString), "yyyy-MM-dd");
   };
-
   return (
     <div className="dashboard">
       <h1 className="dashboard-title">관리자 대시보드</h1>
@@ -76,8 +81,40 @@ function Dashboard() {
           <div className="card monthly-revenue">
             <h2 className="card-title">이번 달 매출</h2>
             <p className="card-value">
-              {dashboardData.monthly_revenue?.toLocaleString() || 0}원
+              {new Intl.NumberFormat("ko-KR", {
+                style: "currency",
+                currency: "KRW",
+              }).format(dashboardData.monthly_revenue || 0)}
             </p>
+            {dashboardData.dailyRevenue &&
+            dashboardData.dailyRevenue.length > 0 ? (
+              <ResponsiveContainer width="100%" height={300}>
+                <LineChart data={dashboardData.dailyRevenue}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="date" tickFormatter={formatDate} />
+                  <YAxis />
+                  <Tooltip
+                    formatter={(value) =>
+                      new Intl.NumberFormat("ko-KR", {
+                        style: "currency",
+                        currency: "KRW",
+                      }).format(value)
+                    }
+                    labelFormatter={(label) => formatDate(label)}
+                  />
+                  <Legend />
+                  <Line
+                    type="monotone"
+                    dataKey="revenue"
+                    name="일별 매출"
+                    stroke="#8884d8"
+                    activeDot={{ r: 8 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            ) : (
+              <p>일별 매출 데이터가 없습니다.</p>
+            )}
           </div>
           <div className="card average-stay">
             <h2 className="card-title">평균 숙박 일수</h2>
@@ -89,29 +126,22 @@ function Dashboard() {
       </div>
       <div className="card recent-bookings">
         <h2 className="card-title">최근 예약</h2>
-        <Link to="/admin/bookings" className="booking-management-link">
-          예약 관리
-        </Link>
-        {dashboardData.recentBookings &&
-        dashboardData.recentBookings.length > 0 ? (
-          <ul className="booking-list">
-            {dashboardData.recentBookings.map((booking) => (
-              <li key={booking.id} className="booking-item">
-                <span className="booking-name">
-                  {booking.accommodation_name}
-                </span>
-                <span className="booking-date">
-                  {formatDate(booking.check_in_date)} ~{" "}
-                  {formatDate(booking.check_out_date)}
-                </span>
-                <span className="guest-name">예약자: {booking.nickname}</span>
-                <span className="guest-email">이메일: {booking.email}</span>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p>최근 예약이 없습니다.</p>
-        )}
+        <ul className="booking-list">
+          {dashboardData.recentBookings.map((booking) => (
+            <li key={booking.id} className="booking-item">
+              <span className="booking-name">{booking.accommodation_name}</span>
+              <span className="booking-date">
+                {formatDate(booking.check_in_date)} ~{" "}
+                {formatDate(booking.check_out_date)}
+              </span>
+              <span className="guest-name">예약자: {booking.nickname}</span>
+              <span className="guest-email">이메일: {booking.email}</span>
+              <span className="guest-phone">
+                전화번호: {booking.phone_number || "미등록"}
+              </span>
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   );
