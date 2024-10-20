@@ -138,10 +138,7 @@ app.use(
     },
   })
 );
-app.get("/api/user", authenticateToken, (req, res) => {
-  console.log("Authenticated user:", req.user);
-  res.json({ id: req.user.id, email: req.user.email });
-});
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.get("/api/likes/:userId", authenticateToken, async (req, res) => {
@@ -926,12 +923,30 @@ app.post("/api/login", async (req, res) => {
     res.status(500).json({ error: "서버 오류가 발생했습니다." });
   }
 });
+app.get("/api/user", authenticateToken, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    console.log("Authenticated user:", req.user);
 
-app.get("/api/user", (req, res) => {
-  if (req.session.userId) {
-    res.json({ id: req.session.userId });
-  } else {
-    res.status(401).json({ message: "인증되지 않은 사용자" });
+    const query = `
+      SELECT a.* 
+      FROM accommodations a 
+      JOIN likes l ON a.id = l.accommodation_id 
+      WHERE l.user_id = ?
+      ORDER BY l.created_at DESC
+    `;
+    const likedAccommodations = await queryDatabase(query, [userId]);
+    console.log("찜한 숙소 조회 결과:", likedAccommodations);
+
+    res.json({
+      id: req.user.id,
+      email: req.user.email,
+      likedAccommodations: likedAccommodations,
+    });
+  } catch (error) {
+    console.error("사용자 정보 및 찜 목록 조회 중 오류 발생:", error);
+    console.error(error.stack);
+    res.status(500).json({ error: "서버 오류가 발생했습니다." });
   }
 });
 app.get("/api/likes/check/:userId/:accommodationId", async (req, res) => {

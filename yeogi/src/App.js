@@ -18,6 +18,7 @@ import SearchPage from "./pages/SearchPage";
 import ReservationPage from "./pages/ReservationPage";
 import ReservationCompletePage from "./ReservationCompletePage";
 import ReservationFailPage from "./pages/ReservationFailPage";
+import FavoritesPage from "./pages/FavoritesPage";
 
 function PrivateRoute({ children }) {
   const navigate = useNavigate();
@@ -62,6 +63,7 @@ function App() {
     <Routes>
       <Route path="/" element={<Register />} />
       <Route path="/next-page" element={<Login />} />
+      <Route path="/favorites" element={<FavoritesPage />} />
       <Route
         path="/yeogi"
         element={
