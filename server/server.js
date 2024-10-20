@@ -840,21 +840,22 @@ app.get("/accommodations/:id", async (req, res) => {
     res.status(500).json({ error: "서버 오류가 발생했습니다." });
   }
 });
-app.get("/api/bookings/:id", async (req, res) => {
+app.get("/api/bookings/:userId", async (req, res) => {
   try {
-    const bookingId = req.params.id;
+    const userId = req.params.userId;
     const query = `
       SELECT b.*, a.name as accommodation_name, a.image_url, a.location
       FROM bookings b
       JOIN accommodations a ON b.accommodation_id = a.id
-      WHERE b.id = ?
+      WHERE b.user_id = ?
+      ORDER BY b.check_in_date DESC
     `;
-    const [booking] = await queryDatabase(query, [bookingId]);
+    const bookings = await queryDatabase(query, [userId]);
 
-    if (booking) {
-      res.json(booking);
+    if (bookings.length > 0) {
+      res.json(bookings);
     } else {
-      res.status(404).json({ error: "예약을 찾을 수 없습니다." });
+      res.json([]); // 예약이 없는 경우 빈 배열 반환
     }
   } catch (error) {
     console.error("예약 정보 조회 중 오류 발생:", error);
@@ -915,9 +916,31 @@ app.get("/api/user", (req, res) => {
     res.status(401).json({ message: "인증되지 않은 사용자" });
   }
 });
+app.get("/api/likes/check/:userId/:accommodationId", async (req, res) => {
+  try {
+    const { userId, accommodationId } = req.params;
+    console.log(
+      "Checking like status for userId:",
+      userId,
+      "accommodationId:",
+      accommodationId
+    );
 
-app.post("/api/likes", authenticateToken, async (req, res) => {
-  console.log("Request body:", req.body); // 추가된 로그
+    const query =
+      "SELECT * FROM likes WHERE user_id = ? AND accommodation_id = ?";
+    const likes = await queryDatabase(query, [userId, accommodationId]);
+
+    console.log("Query result:", likes);
+
+    res.json({ isLiked: likes.length > 0 });
+  } catch (error) {
+    console.error("찜 상태 확인 중 오류 발생:", error);
+    console.error(error.stack); // 스택 트레이스 출력
+    res.status(500).json({ error: "서버 오류가 발생했습니다." });
+  }
+});
+app.post("/api/likes", async (req, res) => {
+  console.log("Request body:", req.body);
   const { userId, accommodationId } = req.body;
   if (!userId || !accommodationId) {
     return res
@@ -925,8 +948,25 @@ app.post("/api/likes", authenticateToken, async (req, res) => {
       .json({ error: "userId와 accommodationId가 필요합니다." });
   }
   try {
-    const query = "INSERT INTO likes (user_id, accommodation_id) VALUES (?, ?)";
-    await queryDatabase(query, [userId, accommodationId]);
+    // 먼저 이미 존재하는지 확인
+    const checkQuery =
+      "SELECT * FROM likes WHERE user_id = ? AND accommodation_id = ?";
+    const existingLikes = await queryDatabase(checkQuery, [
+      userId,
+      accommodationId,
+    ]);
+
+    console.log("Existing likes:", existingLikes);
+
+    if (existingLikes && existingLikes.length > 0) {
+      // 이미 찜한 경우
+      return res.json({ message: "이미 찜한 숙소입니다." });
+    }
+
+    // 존재하지 않는 경우에만 삽입
+    const insertQuery =
+      "INSERT INTO likes (user_id, accommodation_id) VALUES (?, ?)";
+    await queryDatabase(insertQuery, [userId, accommodationId]);
     res.json({ message: "찜하기 성공" });
   } catch (error) {
     console.error("찜하기 추가 중 오류 발생:", error);

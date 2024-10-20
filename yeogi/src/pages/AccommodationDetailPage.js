@@ -6,7 +6,7 @@ import "./AccommodationDetailPage.css";
 import axios from "axios";
 import api from "../api/axiosConfig";
 import { format, addDays } from "date-fns";
-axios.defaults.withCredentials = true; // 모든 요청에 credentials 포함
+axios.defaults.withCredentials = true;
 
 function AccommodationDetailPage() {
   const { id } = useParams();
@@ -15,6 +15,7 @@ function AccommodationDetailPage() {
   const [isLiked, setIsLiked] = useState(false);
   const [userId, setUserId] = useState(null);
   const navigate = useNavigate();
+
   useEffect(() => {
     api
       .get("/api/user")
@@ -29,65 +30,63 @@ function AccommodationDetailPage() {
 
   useEffect(() => {
     if (userId) {
-      axios
-        .get(`http://localhost:3001/accommodations/${id}`)
-        .then((response) => setAccommodation(response.data))
-        .catch((error) => {
-          console.error("숙소 정보 가져오기 실패:", error);
-        });
-
-      api
-        .get(`/api/likes/${userId}`)
-        .then((response) => {
-          setIsLiked(response.data.includes(parseInt(id)));
-        })
-        .catch((error) => console.error("찜 상태 확인 실패:", error));
+      fetchAccommodationData();
+      checkLikeStatus();
     }
   }, [id, userId]);
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    console.log("AccommodationDetailPage 마운트 시 URL 파라미터:");
-    console.log("체크인:", params.get("checkIn"));
-    console.log("체크아웃:", params.get("checkOut"));
-    console.log("인원 수:", params.get("guests"));
-  }, [location.search]);
+
+  const fetchAccommodationData = () => {
+    axios
+      .get(`http://localhost:3001/accommodations/${id}`)
+      .then((response) => setAccommodation(response.data))
+      .catch((error) => {
+        console.error("숙소 정보 가져오기 실패:", error);
+      });
+  };
+
+  const checkLikeStatus = () => {
+    api
+      .get(`/api/likes/check/${userId}/${id}`)
+      .then((response) => {
+        console.log("찜 상태 확인 응답:", response.data);
+        setIsLiked(response.data.isLiked);
+      })
+      .catch((error) => console.error("찜 상태 확인 실패:", error));
+  };
+
   const handleLike = () => {
     if (!userId) {
       console.error("로그인이 필요합니다.");
       return;
     }
 
-    if (isLiked) {
-      api
-        .delete("/api/likes", {
-          data: { userId, accommodationId: id },
-        })
-        .then(() => setIsLiked(false))
-        .catch((error) => {
-          console.error("찜하기 취소 실패:", error);
-        });
-    } else {
-      api
-        .post("/api/likes", {
-          userId,
-          accommodationId: id,
-        })
-        .then(() => setIsLiked(true))
-        .catch((error) => {
-          console.error("찜하기 추가 실패:", error);
-        });
-    }
+    const likeAction = isLiked
+      ? api.delete("/api/likes", { data: { userId, accommodationId: id } })
+      : api.post("/api/likes", { userId, accommodationId: id });
+
+    likeAction
+      .then((response) => {
+        console.log("서버 응답:", response.data);
+        if (response.data.message === "이미 찜한 숙소입니다.") {
+          console.log("이미 찜한 숙소입니다.");
+        } else {
+          setIsLiked(!isLiked);
+          console.log(isLiked ? "찜하기 취소 성공" : "찜하기 추가 성공");
+        }
+      })
+      .catch((error) => {
+        console.error(
+          isLiked ? "찜하기 취소 실패:" : "찜하기 추가 실패:",
+          error
+        );
+      });
   };
+
   const handleReservation = () => {
     const searchParams = new URLSearchParams(location.search);
     const checkIn = searchParams.get("checkIn");
     const checkOut = searchParams.get("checkOut");
     const guests = searchParams.get("guests");
-
-    console.log("AccommodationDetailPage에서 전달하는 파라미터:");
-    console.log("체크인:", checkIn);
-    console.log("체크아웃:", checkOut);
-    console.log("인원 수:", guests);
 
     const reservationParams = new URLSearchParams();
     if (checkIn) reservationParams.append("checkIn", checkIn);
@@ -96,27 +95,20 @@ function AccommodationDetailPage() {
 
     navigate(`/reservation/${id}?${reservationParams.toString()}`);
   };
+
   if (!accommodation) {
     return <div className="yeogi-container">로딩 중...</div>;
   }
-  const settings = {
-    dots: true,
-    infinite: true,
-    speed: 500,
-    slidesToShow: 1,
-    slidesToScroll: 1,
-    arrows: true,
-  };
+
   return (
     <div className="yeogi-container">
       <Header title={accommodation.name} showBackButton={true} />
       <main className="yeogi-main accommodation-detail-content">
-        <img src={accommodation.image_url} />
+        <img src={accommodation.image_url} alt={accommodation.name} />
         <div className="accommodation-info">
           <h1>{accommodation.name}</h1>
           <p className="price">{accommodation.price}원 / 박</p>
           <p className="description">{accommodation.description}</p>
-          {/* 추가적인 숙소 정보를 여기에 넣으세요 */}
         </div>
         <div className="action-buttons">
           <button className="book-button" onClick={handleReservation}>

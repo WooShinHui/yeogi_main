@@ -271,26 +271,6 @@ function Yeogi() {
             </div>
           </div>
         </section>
-
-        <section className="search-results">
-          {searchResults.length > 0 ? (
-            searchResults.map((accommodation) => (
-              <Link
-                to={`/accommodation/${accommodation.id}`}
-                key={accommodation.id}
-                className="accommodation-card"
-              >
-                <img src={accommodation.image_url} alt={accommodation.name} />
-                <h3>{accommodation.name}</h3>
-                <p>{accommodation.location}</p>
-                <p>가격: {accommodation.price}원 / 박</p>
-                <p>최대 인원: {accommodation.max_guests}명</p>
-              </Link>
-            ))
-          ) : (
-            <p>검색 결과가 없습니다.</p>
-          )}
-        </section>
       </main>
       <Footer />
     </div>
