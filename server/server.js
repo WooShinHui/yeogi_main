@@ -357,20 +357,33 @@ app.get("/recommended-hotels", async (req, res) => {
 });
 
 // 인증 코드 요청 처리
-app.post("/request-verification-code", async (req, res) => {
-  const { email, password, birth } = req.body;
-
-  if (!email || !password || !birth) {
-    return res.status(400).json({ error: "모든 필드를 입력해야 합니다." });
-  }
-
+// 이메일 중복 체크 함수
+// 이메일 중복 체크 함수
+async function checkEmailExists(email) {
   try {
     const results = await queryDatabase(
       "SELECT * FROM yeogi_main WHERE email = ?",
       [email]
     );
+    return results.length > 0;
+  } catch (error) {
+    console.error("이메일 중복 체크 중 오류 발생:", error);
+    throw error;
+  }
+}
 
-    if (results.length > 0) {
+app.post("/request-verification-code", async (req, res) => {
+  const { email, password, birth, nickname, phoneNumber } = req.body;
+
+  if (!email || !password || !birth || !nickname || !phoneNumber) {
+    return res.status(400).json({ error: "모든 필드를 입력해야 합니다." });
+  }
+
+  try {
+    const emailExists = await checkEmailExists(email);
+    console.log("이메일 존재 여부:", emailExists); // 디버깅을 위한 로그
+
+    if (emailExists) {
       return res.status(409).json({ error: "이미 존재하는 이메일입니다." });
     }
 
@@ -379,33 +392,31 @@ app.post("/request-verification-code", async (req, res) => {
     ).toString();
 
     await sendVerificationEmail(email, verificationCode);
-    res.json({ message: "사용자 등록 성공", verificationCode });
+    res.json({ message: "인증 코드 전송 성공", verificationCode });
   } catch (error) {
-    handleDatabaseError(res, error, "인증 코드 요청 처리 중 오류 발생:");
+    console.error("인증 코드 요청 처리 중 오류 발생:", error);
+    res.status(500).json({ error: "서버 오류가 발생했습니다." });
   }
 });
 
-app.post("/register", async (req, res) => {
-  const { email, password, birth, nickname, phone_number } = req.body;
+// register 엔드포인트도 비슷하게 수정
 
-  if (!email || !password || !birth || !nickname || !phone_number) {
+app.post("/register", async (req, res) => {
+  const { email, password, birth, nickname, phoneNumber } = req.body;
+
+  if (!email || !password || !birth || !nickname || !phoneNumber) {
     return res.status(400).json({ error: "모든 필드를 입력해야 합니다." });
   }
 
   try {
-    const results = await queryDatabase(
-      "SELECT * FROM yeogi_main WHERE email = ?",
-      [email]
-    );
-
-    if (results.length > 0) {
+    if (await checkEmailExists(email)) {
       return res.status(409).json({ error: "이미 존재하는 이메일입니다." });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
     await queryDatabase(
       "INSERT INTO yeogi_main (email, password, birth, nickname, phone_number) VALUES (?, ?, ?, ?, ?)",
-      [email, hashedPassword, birth, nickname, phone_number]
+      [email, hashedPassword, birth, nickname, phoneNumber]
     );
 
     res.json({ message: "사용자 등록 완료" });

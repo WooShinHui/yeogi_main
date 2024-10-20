@@ -17,7 +17,8 @@ function Login() {
   const [generatedCode, setGeneratedCode] = useState("");
   const [passwordMatchError, setPasswordMatchError] = useState("");
   const [birthError, setBirthError] = useState("");
-
+  const [nicknameError, setNicknameError] = useState("");
+  const [phoneNumberError, setPhoneNumberError] = useState("");
   const navigate = useNavigate();
 
   const handleRegister = () => {
@@ -29,12 +30,28 @@ function Login() {
     } else {
       setPasswordMatchError("");
     }
+
     if (birth.length !== 8) {
       setBirthError("생년월일을 확인하세요.");
       hasError = true;
     } else {
       setBirthError("");
     }
+
+    if (!nickname.trim()) {
+      setNicknameError("닉네임을 입력해주세요.");
+      hasError = true;
+    } else {
+      setNicknameError("");
+    }
+
+    if (!phoneNumber.trim()) {
+      setPhoneNumberError("전화번호를 입력해주세요.");
+      hasError = true;
+    } else {
+      setPhoneNumberError("");
+    }
+
     if (hasError) return;
 
     // 인증 코드 요청
@@ -47,11 +64,11 @@ function Login() {
     })
       .then((response) => response.json())
       .then((data) => {
-        if (data.message === "사용자 등록 성공") {
+        if (data.message === "인증 코드 전송 성공") {
           setIsCodeSent(true);
           setGeneratedCode(data.verificationCode);
         } else {
-          setEmailError(data.error || "이메일 중복");
+          setEmailError(data.error || "인증 코드 전송 실패");
         }
       })
       .catch((error) => {
@@ -136,12 +153,22 @@ function Login() {
           value={nickname}
           onChange={(e) => setNickname(e.target.value)}
         />
+        {nicknameError && (
+          <div className="Error">
+            <p>{nicknameError}</p>
+          </div>
+        )}
         <input
           className="PhoneNumber"
           placeholder="전화번호"
           value={phoneNumber}
           onChange={(e) => setPhoneNumber(e.target.value)}
         />
+        {phoneNumberError && (
+          <div className="Error">
+            <p>{phoneNumberError}</p>
+          </div>
+        )}
       </div>
       <div className="Birth">
         <p>생년월일</p>
