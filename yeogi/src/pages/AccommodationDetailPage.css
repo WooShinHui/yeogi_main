@@ -105,3 +105,13 @@
   background-color: #ff385c;
   color: white;
 }
+.react-datepicker__day.booked-date {
+  background-color: #f0f0f0;
+  color: #ccc;
+  text-decoration: line-through;
+  pointer-events: none;
+}
+
+.react-datepicker__day.booked-date:hover {
+  background-color: #f0f0f0;
+}

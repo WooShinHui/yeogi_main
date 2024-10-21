@@ -19,7 +19,7 @@ import ReservationPage from "./pages/ReservationPage";
 import ReservationCompletePage from "./ReservationCompletePage";
 import ReservationFailPage from "./pages/ReservationFailPage";
 import FavoritesPage from "./pages/FavoritesPage";
-
+import EditProfilePage from "./pages/EditProfilePage";
 function PrivateRoute({ children }) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -80,6 +80,7 @@ function App() {
           </PrivateRoute>
         }
       />
+      <Route path="/edit-profile" element={<EditProfilePage />} />
       <Route path="/search" element={<SearchPage />} />
       <Route
         path="/mapPage"

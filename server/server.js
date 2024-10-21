@@ -13,6 +13,9 @@ const jwt = require("jsonwebtoken");
 const app = express();
 const axios = require("axios");
 const PORT = process.env.PORT || 3001;
+const multer = require("multer");
+const path = require("path");
+const fs = require("fs");
 
 // 환경 변수 설정
 const DB_CONFIG = {
@@ -22,6 +25,24 @@ const DB_CONFIG = {
   database: process.env.DB_NAME || "Yeogi_main",
 };
 
+const uploadsDir = path.join(__dirname, "public", "uploads");
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+// Multer 설정
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    console.log("Saving file to:", uploadsDir); // 디버깅을 위한 로그 추가
+    cb(null, uploadsDir);
+  },
+  filename: function (req, file, cb) {
+    const uniqueFilename = Date.now() + path.extname(file.originalname);
+    console.log("Generated filename:", uniqueFilename); // 디버깅을 위한 로그 추가
+    cb(null, uniqueFilename);
+  },
+});
+const upload = multer({ storage: storage });
 const EMAIL_CONFIG = {
   host: "smtp.naver.com",
   port: 587,
@@ -320,6 +341,8 @@ app.delete("/api/likes", authenticateToken, async (req, res) => {
 // JSON 요청을 처리할 수 있도록 설정
 app.use(express.json());
 
+// 정적 파일 제공을 위한 미들웨어 설정
+app.use(express.static(path.join(__dirname, "public")));
 // 세션 미들웨어 설정
 app.use(
   session({
@@ -767,12 +790,24 @@ app.get("/Yeogi", (req, res) => {
 
 app.get("/api/accommodations/search", async (req, res) => {
   console.log("Received request with query:", req.query);
-  const { location, checkIn, checkOut, guests, type } = req.query;
+
+  // req.query.location이 객체인 경우를 처리
+  const { location, checkIn, checkOut, guests, type } =
+    typeof req.query.location === "object" ? req.query.location : req.query;
+
+  console.log("Parsed query parameters:", {
+    location,
+    checkIn,
+    checkOut,
+    guests,
+    type,
+  });
 
   try {
     let query = `
       SELECT DISTINCT a.* 
       FROM accommodations a
+      LEFT JOIN bookings b ON a.id = b.accommodation_id AND b.status != 'cancelled'
       WHERE 1=1
     `;
 
@@ -795,19 +830,23 @@ app.get("/api/accommodations/search", async (req, res) => {
 
     if (checkIn && checkOut) {
       query += `
-        AND NOT EXISTS (
-          SELECT 1
-          FROM bookings b
-          WHERE b.accommodation_id = a.id
-            AND b.status != 'cancelled'
-            AND (
-              (b.check_in_date <= ? AND b.check_out_date > ?)
-              OR (b.check_in_date < ? AND b.check_out_date >= ?)
-              OR (? <= b.check_in_date AND ? > b.check_in_date)
-            )
+        AND (
+          b.id IS NULL OR
+          (b.check_out_date <= ? OR b.check_in_date >= ?)
         )
       `;
-      params.push(checkOut, checkIn, checkOut, checkOut, checkIn, checkOut);
+      params.push(checkIn, checkOut);
+    }
+
+    query += `
+      GROUP BY a.id
+      HAVING COUNT(CASE WHEN b.id IS NOT NULL AND b.check_out_date > ? AND b.check_in_date < ? THEN 1 END) = 0
+    `;
+
+    if (checkIn && checkOut) {
+      params.push(checkIn, checkOut);
+    } else {
+      params.push(null, null);
     }
 
     console.log("Executing query:", query);
@@ -825,14 +864,31 @@ app.get("/api/accommodations/search", async (req, res) => {
 app.get("/accommodations/:id", async (req, res) => {
   const { id } = req.params;
   try {
-    const query = "SELECT * FROM accommodations WHERE id = ?";
-    const results = await queryDatabase(query, [id]);
+    // 숙소 정보 조회
+    const accommodationQuery = "SELECT * FROM accommodations WHERE id = ?";
+    const accommodationResults = await queryDatabase(accommodationQuery, [id]);
 
-    if (results.length === 0) {
+    if (accommodationResults.length === 0) {
       return res.status(404).json({ error: "숙소를 찾을 수 없습니다." });
     }
 
-    res.json(results[0]);
+    const accommodation = accommodationResults[0];
+
+    // 예약 정보 조회
+    const bookingsQuery = `
+      SELECT check_in_date, check_out_date 
+      FROM bookings 
+      WHERE accommodation_id = ? AND status != 'cancelled' AND check_out_date >= CURDATE()
+    `;
+    const bookingsResults = await queryDatabase(bookingsQuery, [id]);
+
+    // 숙소 정보에 예약 정보 추가
+    accommodation.bookings = bookingsResults.map((booking) => ({
+      check_in_date: booking.check_in_date,
+      check_out_date: booking.check_out_date,
+    }));
+
+    res.json(accommodation);
   } catch (error) {
     console.error("숙소 정보 조회 중 오류 발생:", error);
     res.status(500).json({ error: "서버 오류가 발생했습니다." });
@@ -859,6 +915,33 @@ app.get("/api/bookings/:userId", async (req, res) => {
     console.error("예약 정보 조회 중 오류 발생:", error);
     res.status(500).json({ error: "서버 오류가 발생했습니다." });
   }
+});
+// 서버 측 코드 (예시)
+app.get("/api/bookings/check/:accommodationId", (req, res) => {
+  const { accommodationId } = req.params;
+  const { checkIn, checkOut } = req.query;
+
+  // 데이터베이스에서 해당 숙소의 예약 정보를 확인
+  const query = `
+    SELECT COUNT(*) as count
+    FROM bookings
+    WHERE accommodation_id = ?
+    AND ((check_in_date <= ? AND check_out_date > ?)
+    OR (check_in_date < ? AND check_out_date >= ?)
+    OR (check_in_date >= ? AND check_out_date <= ?))
+  `;
+
+  db.query(
+    query,
+    [accommodationId, checkOut, checkIn, checkOut, checkIn, checkIn, checkOut],
+    (err, results) => {
+      if (err) {
+        res.status(500).json({ error: "예약 확인 중 오류 발생" });
+      } else {
+        res.json({ isAvailable: results[0].count === 0 });
+      }
+    }
+  );
 });
 // 로그인 라우트
 app.post("/api/login", async (req, res) => {
@@ -915,32 +998,7 @@ app.post("/api/login", async (req, res) => {
     res.status(500).json({ error: "서버 오류가 발생했습니다." });
   }
 });
-app.get("/api/user", authenticateToken, async (req, res) => {
-  try {
-    const userId = req.user.id;
-    console.log("Authenticated user:", req.user);
 
-    const query = `
-      SELECT a.* 
-      FROM accommodations a 
-      JOIN likes l ON a.id = l.accommodation_id 
-      WHERE l.user_id = ?
-      ORDER BY l.created_at DESC
-    `;
-    const likedAccommodations = await queryDatabase(query, [userId]);
-    console.log("찜한 숙소 조회 결과:", likedAccommodations);
-
-    res.json({
-      id: req.user.id,
-      email: req.user.email,
-      likedAccommodations: likedAccommodations,
-    });
-  } catch (error) {
-    console.error("사용자 정보 및 찜 목록 조회 중 오류 발생:", error);
-    console.error(error.stack);
-    res.status(500).json({ error: "서버 오류가 발생했습니다." });
-  }
-});
 app.get("/api/likes/check/:userId/:accommodationId", async (req, res) => {
   try {
     const { userId, accommodationId } = req.params;
@@ -1338,7 +1396,65 @@ app.get("/api/admin/accommodations", authenticateToken, async (req, res) => {
     res.status(500).json({ error: "서버 오류가 발생했습니다." });
   }
 });
+// 사용자 정보 업데이트 (닉네임)
+app.get("/api/user", authenticateToken, async (req, res) => {
+  try {
+    const [user] = await queryDatabase(
+      "SELECT id, email, nickname, profile_image FROM yeogi_main WHERE id = ?",
+      [req.user.id]
+    );
+    if (!user) {
+      return res.status(404).json({ error: "사용자를 찾을 수 없습니다." });
+    }
+    res.json(user);
+  } catch (error) {
+    console.error("사용자 정보 조회 실패:", error);
+    res.status(500).json({ error: "서버 오류가 발생했습니다." });
+  }
+});
+app.put(
+  "/api/user/profile-image",
+  authenticateToken,
+  upload.single("profile_image"),
+  async (req, res) => {
+    if (!req.file) {
+      return res.status(400).json({ error: "이미지 파일이 없습니다." });
+    }
 
+    const imageUrl = `/uploads/${req.file.filename}`; // 상대 경로로 변경
+
+    try {
+      // 기존 프로필 이미지가 있다면 삭제
+      const [user] = await queryDatabase(
+        "SELECT profile_image FROM yeogi_main WHERE id = ?",
+        [req.user.id]
+      );
+      if (
+        user.profile_image &&
+        user.profile_image !== "/images/default-profile.png"
+      ) {
+        const oldImagePath = path.join(__dirname, "public", user.profile_image);
+        fs.unlink(oldImagePath, (err) => {
+          if (err) console.error("기존 이미지 삭제 실패:", err);
+        });
+      }
+
+      // 데이터베이스 업데이트
+      await queryDatabase(
+        "UPDATE yeogi_main SET profile_image = ? WHERE id = ?",
+        [imageUrl, req.user.id]
+      );
+
+      res.json({
+        message: "프로필 이미지가 업데이트되었습니다.",
+        profile_image: imageUrl,
+      });
+    } catch (error) {
+      console.error("프로필 이미지 업데이트 실패:", error);
+      res.status(500).json({ error: "서버 오류가 발생했습니다." });
+    }
+  }
+);
 // 특정 숙소 정보를 수정하는 엔드포인트
 app.put("/api/admin/accommodation/:id", authenticateToken, async (req, res) => {
   if (!req.user.isAdmin) {
@@ -1379,7 +1495,52 @@ app.put("/api/admin/accommodation/:id", authenticateToken, async (req, res) => {
     res.status(500).json({ error: "서버 오류가 발생했습니다." });
   }
 });
+// 사용자 정보 업데이트 (닉네임)
+app.put("/api/user", authenticateToken, async (req, res) => {
+  const { nickname } = req.body;
 
+  if (!nickname) {
+    return res.status(400).json({ error: "닉네임은 필수 입력 항목입니다." });
+  }
+
+  try {
+    await queryDatabase("UPDATE yeogi_main SET nickname = ? WHERE id = ?", [
+      nickname,
+      req.user.id,
+    ]);
+
+    res.json({ message: "닉네임이 성공적으로 업데이트되었습니다.", nickname });
+  } catch (error) {
+    console.error("닉네임 업데이트 실패:", error);
+    res.status(500).json({ error: "서버 오류가 발생했습니다." });
+  }
+});
+app.get("/api/user", authenticateToken, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    console.log("Authenticated user:", req.user);
+
+    const query = `
+      SELECT a.* 
+      FROM accommodations a 
+      JOIN likes l ON a.id = l.accommodation_id 
+      WHERE l.user_id = ?
+      ORDER BY l.created_at DESC
+    `;
+    const likedAccommodations = await queryDatabase(query, [userId]);
+    console.log("찜한 숙소 조회 결과:", likedAccommodations);
+
+    res.json({
+      id: req.user.id,
+      email: req.user.email,
+      likedAccommodations: likedAccommodations,
+    });
+  } catch (error) {
+    console.error("사용자 정보 및 찜 목록 조회 중 오류 발생:", error);
+    console.error(error.stack);
+    res.status(500).json({ error: "서버 오류가 발생했습니다." });
+  }
+});
 // 예약 관리
 app.get("/api/admin/bookings", authenticateToken, async (req, res) => {
   if (!req.user.isAdmin) {

@@ -11,6 +11,7 @@ import { format, differenceInDays } from "date-fns";
 import { FaCalendarAlt, FaUser } from "react-icons/fa";
 import "./SearchResultsPages.css";
 import "../styles/common.css";
+
 registerLocale("ko", ko);
 
 function SearchResultsPage() {
@@ -21,7 +22,6 @@ function SearchResultsPage() {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [guests, setGuests] = useState(1);
   const [showGuestSelector, setShowGuestSelector] = useState(false);
-  const [tempGuests, setTempGuests] = useState(1);
   const location = useLocation();
   const navigate = useNavigate();
   const searchParams = new URLSearchParams(location.search);
@@ -33,34 +33,20 @@ function SearchResultsPage() {
 
     if (checkInDate) setCheckIn(new Date(checkInDate));
     if (checkOutDate) setCheckOut(new Date(checkOutDate));
-    if (guestsParam) {
-      const parsedGuests = parseInt(guestsParam, 10);
-      setGuests(parsedGuests);
-      setTempGuests(parsedGuests);
-    }
+    if (guestsParam) setGuests(parseInt(guestsParam, 10));
 
     fetchResults();
   }, [location.search]);
 
   const fetchResults = async () => {
+    setLoading(true);
     try {
-      const location = searchParams.get("location");
-      const checkIn = searchParams.get("checkIn");
-      const checkOut = searchParams.get("checkOut");
-      const guests = searchParams.get("guests");
-      const type = searchParams.get("type");
-
-      const data = await searchAccommodations(
-        location,
-        checkIn,
-        checkOut,
-        guests,
-        type
-      );
+      const data = await searchAccommodations(Object.fromEntries(searchParams));
+      console.log("서버에서 받은 데이터:", data);
       setResults(data);
-      setLoading(false);
     } catch (error) {
       console.error("결과 가져오기 실패:", error);
+    } finally {
       setLoading(false);
     }
   };
@@ -78,9 +64,9 @@ function SearchResultsPage() {
     }
   };
 
-  const handleGuestChange = () => {
-    setGuests(tempGuests);
-    searchParams.set("guests", tempGuests.toString());
+  const handleGuestChange = (newGuests) => {
+    setGuests(newGuests);
+    searchParams.set("guests", newGuests.toString());
     navigate(`${location.pathname}?${searchParams.toString()}`);
     setShowGuestSelector(false);
   };
@@ -137,26 +123,22 @@ function SearchResultsPage() {
               {showGuestSelector && (
                 <div className="guest-selector">
                   <button
-                    onClick={() => setTempGuests(Math.max(1, tempGuests - 1))}
+                    onClick={() => handleGuestChange(Math.max(1, guests - 1))}
                   >
                     -
                   </button>
-                  <span>{tempGuests}명</span>
-                  <button onClick={() => setTempGuests(tempGuests + 1)}>
+                  <span>{guests}명</span>
+                  <button onClick={() => handleGuestChange(guests + 1)}>
                     +
-                  </button>
-                  <button
-                    className="confirm-button"
-                    onClick={handleGuestChange}
-                  >
-                    확인
                   </button>
                 </div>
               )}
             </div>
           </div>
 
-          {results.length > 0 ? (
+          {loading ? (
+            <div className="loading-message">검색 중...</div>
+          ) : results.length > 0 ? (
             <div className="search-results">
               {results.map((accommodation) => (
                 <Link

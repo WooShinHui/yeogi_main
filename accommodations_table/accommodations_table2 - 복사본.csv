@@ -1,31 +1,31 @@
 id,name,location,price,max_guests,description,image_url,available_from,available_to,latitude,longitude,admin_id,type
-1,서울 그랜드 호텔,서울특별시 중구,150000,4,서울 중심부에 위치한 고급 호텔,https://www.swissgrand.co.kr/wp-content/uploads/sites/103/2020/10/main_image2200x1200_03-1-2200x1200.jpg,2023-05-01,2023-07-31,37.5665,126.978,2,호텔
-2,부산 오션 뷰 리조트,부산광역시 해운대구,200000,6,해운대 해변이 보이는 럭셔리 리조트,https://www.banyantreehaeundaebusan.com/wp-content/uploads/2024/10/main_video_thum_02_1.jpg,2023-08-31,2023-09-05,35.1796,129.0756,2,리조트
-3,제주 힐링 펜션,제주특별자치도 서귀포시,100000,2,제주의 자연 속에서 휴식을 취할 수 있는 펜션,https://dynamic-media-cdn.tripadvisor.com/media/photo-o/11/cf/aa/f8/caption.jpg?w=1200&h=-1&s=1,2023-09-30,2023-10-05,33.4996,126.5312,2,펜션
-4,서울 그랜드 호텔,서울특별시 중구,150000,4,서울 중심부에 위치한 고급 호텔,https://img.hyundaicard.com/upload/cpd/cs/1_1643855346641.jpg,2024-09-30,2024-10-10,37.5642,127.0016,2,호텔
-5,부산 오션 뷰 리조트,부산광역시 해운대구,183500,6,해운대 해변이 보이는 럭셔리 리조트,https://lh5.googleusercontent.com/p/AF1QipO3cktZC9yggjTqjJCWD5a6EV0qHOWRd2uiOLs2=w252-h185-k-no,2024-08-30,2024-09-20,35.1545,129.06,2,리조트
-6,제주 힐링 펜션,제주특별자치도 서귀포시,133500,2,제주의 자연 속에서 휴식을 취할 수 있는 펜션,https://cdn.prod.website-files.com/6316f3f75130788ec2d762dd/63da2a7aa0807f4516222c0b_3-min.jpg,2024-10-20,2024-10-25,33.489,126.4983,2,펜션
-7,서울 별숲 글램핑,서울,163200,3,서울에 위치한 별숲 글램핑,https://www.5gcamp.com/files/camping/2018/11/24/316cf701de552ec86fac15cba860c3f2151124.jpg,NULL,NULL,37.56791292,126.9716001,2,글램핑
-8,청주 창화빌라,청주,175000,2,청주에 위치한 창화빌라,https://cdn.hankyung.com/photo/202109/01.27478312.1.jpg,NULL,NULL,36.62260399,127.485984,2,빌라
-9,제주 싱가포르 호텔,제주,162000,2,제주에 위치한 호텔,https://cdn.telltrip.com/news/photo/202404/1484_8085_2012.jpg,NULL,NULL,33.44942276,126.6392971,2,호텔
-10,청주 무인텔,청주,30000,2,청주에 위치한 무인텔,https://yaimg.yanolja.com/v5/2021/01/06/18/5ff57fc3846299.75941836.jpg,,,36.63584236,127.49073809171358 ,2,모텔
-11,부산 하운드 가든 ,부산광역시 해운대구,175200,4,부산에 위치한 하운드 가든,https://dynamic-media-cdn.tripadvisor.com/media/photo-o/2a/bb/c8/29/14.jpg?w=700&h=-1&s=1,,,35.1746169,129.1378583511693 ,2,호텔
-12,세인트 존스,강릉,183000,4,강릉에 위치한 세인트 존스 호텔,https://yaimg.yanolja.com/v5/2022/10/17/15/1280/634d7563600ed4.17945107.jpg,,,37.78308501,37.78308501,2,호텔
-13,수안보 힐링호텔,충주,132100,4,충주에 위치한 수안보 온천 힐링호텔,https://www.cbiz.kr/news/photo/201610/8339_8976_4623.jpg,,,36.98710294,127.91963441332565 ,2,모텔
-14,힐튼 경주,경주,136500,4,경주에 위치한 힐튼 숙소,https://dynamic-media-cdn.tripadvisor.com/media/photo-o/2a/ed/68/58/exterior.jpg?w=1200&h=-1&s=1,,,35.83690737,129.23206549869454 ,2,호텔
-15,한화리조트 설악 쏘라노,속초,130000,6,속초 산악에 위치한 설악 쏘라노,https://dynamic-media-cdn.tripadvisor.com/media/photo-o/18/f3/19/8c/caption.jpg?w=1000&h=-1&s=1,,,38.21200982,128.59587024298588 ,2,리조트
-16,여수 다이나믹 리조트,여수,123550,8,여수 다이나믹 리조트,https://dynamic-media-cdn.tripadvisor.com/media/photo-o/18/96/87/31/caption.jpg?w=1000&h=-1&s=1,,,34.73402299,127.69681859625463 ,2,리조트
-17,전주 한옥,전주,125800,6,전주에 위치한 한옥,"https://dynamic-media-cdn.tripadvisor.com/media/photo-o/18/c9/ff/02/jeonju-hanok-village.jpg?w=1200&h=-1&s=1 1x,https://dynamic-media-cdn.tripadvisor.com/media/photo-o/18/c9/ff/02/jeonju-hanok-village.jpg?w=1400&h=-1&s=1 2x",,,35.81959466,127.11058042842589 ,2,한옥
-18,경주 한옥 스테이,경주,130000,4,경주에 위치한 한옥 스테이,https://dynamic-media-cdn.tripadvisor.com/media/photo-o/0c/e0/a3/c3/20160908-184849-largejpg.jpg?w=300&h=300&s=1,,,35.84355348,129.21180093017136 ,2,한옥
-19,가평 풀빌라,가평,156000,2,가평에 위치한 빠지 풀빌라,https://dynamic-media-cdn.tripadvisor.com/media/photo-o/13/47/96/65/1528019665092-largejpg.jpg?w=300&h=300&s=1,,,37.82994157,127.5142602,2,펜션
-20,평택 호텔,평택,165000,2,평택에 위치한 호텔,https://dynamic-media-cdn.tripadvisor.com/media/photo-o/12/2d/f5/7b/caption.jpg?w=300&h=300&s=1,,,36.99140213,127.11530895135851 ,2,호텔
-21,제부도 럭셔리 호텔,인천 제부도,132000,4,제부도에 위치한 럭셔리 리조트,https://dynamic-media-cdn.tripadvisor.com/media/photo-o/17/22/1d/46/hotel-exterior.jpg?w=300&h=300&s=1,,,37.16730691,126.6176496,2,리조트
-22,동탄 신라 스테이,동탄,135100,6,동탄에 위치한 신라 스테이,https://dynamic-media-cdn.tripadvisor.com/media/photo-o/1b/a4/2e/e3/caption.jpg?w=300&h=-1&s=1,,,37.20581663,127.07453995045164 ,2,호텔
-23,수원 라마다 호텔,수원,121000,8,수원에 위치한 프리미엄 호텔,https://dynamic-media-cdn.tripadvisor.com/media/photo-o/2a/ec/f3/6a/exterior-view.jpg?w=300&h=300&s=1,,,37.25470826,127.03310642940252 ,2,호텔
-24,오산 글램글램,오산,135400,6,오산에 위치한 글램글램,https://yaimg.yanolja.com/v5/2024/05/09/09/1280/663c9a6ee99b36.29204807.jpg,,,37.14771594,127.07556349500183 ,2,글램핑
-25,가평 더 휴 스파,가평,130000,6,가평에 위치한 빠지 풀빌라,https://pix10.agoda.net/hotelImages/28258513/-1/5530515be68de56f4748044f30718346.jpg?ce=0&s=702x392,,,37.82959134,127.52825203743942 ,2,펜션
-26,양양 게스트하우스,양양,144200,4,양양에 위치한 게스트 하우스,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS8vfrKb2csm1ZIQxHCrYOpN-VhrmIY8UUinA&s,,,38.09647839,128.65390631002754 ,2,게스트하우스
-27,울산 오션뷰 펜션,울산,135000,2,울산에 위치한 오션뷰 펜션,https://cf.bstatic.com/static/img/theme-index/bg_placestostay/723e0fca72a9e45222ea74a1df3d79b544d009e0.jpg,,,35.55999156,129.406348332153 ,2,펜션
-28,세종 다온숲,세종,130000,2,세종에 위치한 글램핑,https://daonsup.com/mobile/images/main/m_cont6.jpg,,,36.47653843,127.28593512235108 ,2,글램핑
-29,대천 데이오프,대천,123100,2,대천에 위치한 숙소,https://dayoff.co.kr/whatsinmytrip/wp-content/uploads/2024/06/%EB%8C%80%EC%B2%9C%EC%88%99%EC%86%8C%EC%8D%B8%EB%84%A4%EC%9D%BC-1-900x675.jpg,,,36.31253218,126.51497051391588 ,2,펜션
-30,태안 센티마르펜션 글램핑,태안,151500,4,태안 센티마르펜션 글램핑,https://image.goodchoice.kr/resize_792x480/affiliate/2024/03/12/09/cadd984c306a4708a15c3a864d2263ba.jpg,,,36.72589919,126.2612744,2,글램핑
+1,서울 그랜드 호텔,서울특별시 중구,150000,4,서울 중심부에 위치한 고급 호텔,"https://www.swissgrand.co.kr/wp-content/uploads/sites/103/2020/10/main_image2200x1200_03-1-2200x1200.jpg",2023-05-01,2023-07-31,37.5665,126.978000,2,호텔
+2,부산 오션 뷰 리조트,부산광역시 해운대구,200000,6,해운대 해변이 보이는 럭셔리 리조트,"https://www.banyantreehaeundaebusan.com/wp-content/uploads/2024/10/main_video_thum_02_1.jpg",2023-08-31,2023-09-05,35.1796,129.075600,2,리조트
+3,제주 힐링 펜션,제주특별자치도 서귀포시,100000,2,제주의 자연 속에서 휴식을 취할 수 있는 펜션,"https://dynamic-media-cdn.tripadvisor.com/media/photo-o/11/cf/aa/f8/caption.jpg?w=1200&h=-1&s=1",2023-09-30,2023-10-05,33.4996,126.531200,2,펜션
+4,서울 그랜드 호텔,서울특별시 중구,150000,4,서울 중심부에 위치한 고급 호텔,"https://img.hyundaicard.com/upload/cpd/cs/1_1643855346641.jpg",2024-09-30,2024-10-10,37.5642,127.001600,2,호텔
+5,부산 오션 뷰 리조트,부산광역시 해운대구,183500,6,해운대 해변이 보이는 럭셔리 리조트,"https://lh5.googleusercontent.com/p/AF1QipO3cktZC9yggjTqjJCWD5a6EV0qHOWRd2uiOLs2=w252-h185-k-no",2024-08-30,2024-09-20,35.1545,129.060000,2,리조트
+6,제주 힐링 펜션,제주특별자치도 서귀포시,133500,2,제주의 자연 속에서 휴식을 취할 수 있는 펜션,"https://cdn.prod.website-files.com/6316f3f75130788ec2d762dd/63da2a7aa0807f4516222c0b_3-min.jpg",2024-10-20,2024-10-25,33.489,126.498300,2,펜션
+7,서울 별숲 글램핑,서울,163200,3,서울에 위치한 별숲 글램핑,"https://www.5gcamp.com/files/camping/2018/11/24/316cf701de552ec86fac15cba860c3f2151124.jpg",2023-01-01,2023-12-31,37.56791292,126.9716001,2,글램핑
+8,청주 창화빌라,청주,175000,2,청주에 위치한 창화빌라,"https://cdn.hankyung.com/photo/202109/01.27478312.1.jpg",2023-01-01,2023-12-31,36.62260399,127.485984,2,빌라
+9,제주 싱가포르 호텔,제주,162000,2,제주에 위치한 호텔,"https://cdn.telltrip.com/news/photo/202404/1484_8085_2012.jpg",2023-01-01,2023-12-31,33.44942276,126.6392971,2,호텔
+10,청주 무인텔,청주,30000,2,청주에 위치한 무인텔,"https://yaimg.yanolja.com/v5/2021/01/06/18/5ff57fc3846299.75941836.jpg",2023-01-01,2023-12-31,36.63584236,127.49073809,2,모텔
+11,부산 하운드 가든 ,부산광역시 해운대구,175200,4,부산에 위치한 하운드 가든,"https://dynamic-media-cdn.tripadvisor.com/media/photo-o/2a/bb/c8/29/14.jpg?w=700&h=-1&s=1",2023-01-01,2023-12-31,35.1746169,129.13785835,2,호텔
+12,세인트 존스,강릉,183000,4,강릉에 위치한 세인트 존스 호텔,"https://yaimg.yanolja.com/v5/2022/10/17/15/1280/634d7563600ed4.17945107.jpg",2023-01-01,2023-12-31,37.78308501,37.78308501,2,호텔
+13,수안보 힐링호텔,충주,132100,4,충주에 위치한 수안보 온천 힐링호텔,"https://www.cbiz.kr/news/photo/201610/8339_8976_4623.jpg",2023-01-01,2023-12-31,36.98710294,127.91963441,2,모텔
+14,힐튼 경주,경주,136500,4,경주에 위치한 힐튼 숙소,"https://dynamic-media-cdn.tripadvisor.com/media/photo-o/2a/ed/68/58/exterior.jpg?w=1200&h=-1&s=1",2023-01-01,2023-12-31,35.83690737,129.23206549,2,호텔
+15,한화리조트 설악 쏘라노,속초,130000,6,속초 산악에 위치한 설악 쏘라노,"https://dynamic-media-cdn.tripadvisor.com/media/photo-o/18/f3/19/8c/caption.jpg?w=1000&h=-1&s=1",2023-01-01,2023-12-31,38.21200982,128.59587024,2,리조트
+16,여수 다이나믹 리조트,여수,123550,8,여수 다이나믹 리조트,"https://dynamic-media-cdn.tripadvisor.com/media/photo-o/18/96/87/31/caption.jpg?w=1000&h=-1&s=1",2023-01-01,2023-12-31,34.73402299,127.69681859,2,리조트
+17,전주 한옥,전주,125800,6,전주에 위치한 한옥,"https://dynamic-media-cdn.tripadvisor.com/media/photo-o/18/c9/ff/02/jeonju-hanok-village.jpg?w=1200&h=-1&s=1 1x,https://dynamic-media-cdn.tripadvisor.com/media/photo-o/18/c9/ff/02/jeonju-hanok-village.jpg?w=1400&h=-1&s=1 2x",2023-01-01,2023-12-31,35.81959466,127.11058042,2,한옥
+18,경주 한옥 스테이,경주,130000,4,경주에 위치한 한옥 스테이,"https://dynamic-media-cdn.tripadvisor.com/media/photo-o/0c/e0/a3/c3/20160908-184849-largejpg.jpg?w=300&h=300&s=1",2023-01-01,2023-12-31,35.84355348,129.21180093,2,한옥
+19,가평 풀빌라,가평,156000,2,가평에 위치한 빠지 풀빌라,"https://dynamic-media-cdn.tripadvisor.com/media/photo-o/13/47/96/65/1528019665092-largejpg.jpg?w=300&h=300&s=1",2023-01-01,2023-12-31,37.82994157,127.5142602,2,펜션
+20,평택 호텔,평택,165000,2,평택에 위치한 호텔,"https://dynamic-media-cdn.tripadvisor.com/media/photo-o/12/2d/f5/7b/caption.jpg?w=300&h=300&s=1",2023-01-01,2023-12-31,36.99140213,127.11530895,2,호텔
+21,제부도 럭셔리 호텔,인천 제부도,132000,4,제부도에 위치한 럭셔리 리조트,"https://dynamic-media-cdn.tripadvisor.com/media/photo-o/17/22/1d/46/hotel-exterior.jpg?w=300&h=300&s=1",2023-01-01,2023-12-31,37.16730691,126.6176496,2,리조트
+22,동탄 신라 스테이,동탄,135100,6,동탄에 위치한 신라 스테이,"https://dynamic-media-cdn.tripadvisor.com/media/photo-o/1b/a4/2e/e3/caption.jpg?w=300&h=-1&s=1",2023-01-01,2023-12-31,37.20581663,127.07453995,2,호텔
+23,수원 라마다 호텔,수원,121000,8,수원에 위치한 프리미엄 호텔,"https://dynamic-media-cdn.tripadvisor.com/media/photo-o/2a/ec/f3/6a/exterior-view.jpg?w=300&h=300&s=1",2023-01-01,2023-12-31,37.25470826,127.03310642,2,호텔
+24,오산 글램글램,오산,135400,6,오산에 위치한 글램글램,"https://yaimg.yanolja.com/v5/2024/05/09/09/1280/663c9a6ee99b36.29204807.jpg",2023-01-01,2023-12-31,37.14771594,127.07556349,2,글램핑
+25,가평 더 휴 스파,가평,130000,6,가평에 위치한 빠지 풀빌라,"https://pix10.agoda.net/hotelImages/28258513/-1/5530515be68de56f4748044f30718346.jpg?ce=0&s=702x392",2023-01-01,2023-12-31,37.82959134,127.52825203,2,펜션
+26,양양 게스트하우스,양양,144200,4,양양에 위치한 게스트 하우스,"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS8vfrKb2csm1ZIQxHCrYOpN-VhrmIY8UUinA&s",2023-01-01,2023-12-31,38.09647839,128.65390631,2,게스트하우스
+27,울산 오션뷰 펜션,울산,135000,2,울산에 위치한 오션뷰 펜션,"https://cf.bstatic.com/static/img/theme-index/bg_placestostay/723e0fca72a9e45222ea74a1df3d79b544d009e0.jpg",2023-01-01,2023-12-31,35.55999156,129.40634833,2,펜션
+28,세종 다온숲,세종,130000,2,세종에 위치한 글램핑,"https://daonsup.com/mobile/images/main/m_cont6.jpg",2023-01-01,2023-12-31,36.47653843,127.28593512,2,글램핑
+29,대천 데이오프,대천,123100,2,대천에 위치한 숙소,"https://dayoff.co.kr/whatsinmytrip/wp-content/uploads/2024/06/%EB%8C%80%EC%B2%9C%EC%88%99%EC%86%8C%EC%8D%B8%EB%84%A4%EC%9D%BC-1-900x675.jpg",2023-01-01,2023-12-31,36.31253218,126.51497051,2,펜션
+30,태안 센티마르펜션 글램핑,태안,151500,4,태안 센티마르펜션 글램핑,"https://image.goodchoice.kr/resize_792x480/affiliate/2024/03/12/09/cadd984c306a4708a15c3a864d2263ba.jpg",2023-01-01,2023-12-31,36.72589919,126.2612744,2,글램핑

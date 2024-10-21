@@ -36,7 +36,7 @@ function Footer() {
       </Link>
       <Link to="/mypage" className={`nav-item ${getIconColor("/mypage")}`}>
         <img src="/images/icon-user.png" alt="내 정보" className="nav-icon" />
-        <span className={getTextClass("/mypage")}>내 정보</span>
+        <span className={getTextClass("/mypage")}>내 숙소</span>
       </Link>
     </nav>
   );

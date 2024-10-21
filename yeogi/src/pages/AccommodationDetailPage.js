@@ -36,6 +36,8 @@ function AccommodationDetailPage() {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showGuestSelector, setShowGuestSelector] = useState(false);
   const [bookedDates, setBookedDates] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -66,21 +68,29 @@ function AccommodationDetailPage() {
       checkLikeStatus();
     }
   }, [id, userId]);
-
+  useEffect(() => {
+    console.log("Updated bookedDates:", bookedDates);
+  }, [bookedDates]);
   const fetchAccommodationData = () => {
+    setLoading(true);
     axios
       .get(`http://localhost:3001/accommodations/${id}`)
       .then((response) => {
         setAccommodation(response.data);
-        setBookedDates(
-          response.data.bookings.map((booking) => ({
+        if (response.data && response.data.bookings) {
+          const bookedDateRanges = response.data.bookings.map((booking) => ({
             start: new Date(booking.check_in_date),
             end: new Date(booking.check_out_date),
-          }))
-        );
+          }));
+          setBookedDates(bookedDateRanges);
+          console.log("Booked dates:", bookedDateRanges); // 추가된 로그
+        }
+        setLoading(false);
       })
       .catch((error) => {
         console.error("숙소 정보 가져오기 실패:", error);
+        setError("숙소 정보를 가져오는데 실패했습니다.");
+        setLoading(false);
       });
   };
 
@@ -115,8 +125,30 @@ function AccommodationDetailPage() {
       });
   };
 
+  const isDateBooked = (date) => {
+    const result = bookedDates.some((range) => {
+      const isBooked = isWithinInterval(date, {
+        start: range.start,
+        end: addDays(range.end, -1),
+      });
+      console.log(
+        `Checking date ${date}: ${isBooked ? "booked" : "available"}`
+      );
+      return isBooked;
+    });
+    return result;
+  };
+
   const handleDateChange = (dates) => {
     const [start, end] = dates;
+    if (start && end) {
+      const range = eachDayOfInterval({ start, end: addDays(end, -1) });
+      const isAnyDateBooked = range.some(isDateBooked);
+      if (isAnyDateBooked) {
+        alert("선택한 날짜 중 이미 예약된 날짜가 포함되어 있습니다.");
+        return;
+      }
+    }
     setCheckIn(start);
     setCheckOut(end);
     if (start && end) {
@@ -141,12 +173,6 @@ function AccommodationDetailPage() {
     reservationParams.append("guests", guests.toString());
 
     navigate(`/reservation/${id}?${reservationParams.toString()}`);
-  };
-
-  const isDateBooked = (date) => {
-    return bookedDates.some((interval) =>
-      isWithinInterval(date, { start: interval.start, end: interval.end })
-    );
   };
 
   const formatDateRange = () => {
@@ -194,14 +220,16 @@ function AccommodationDetailPage() {
                   excludeDates={bookedDates.flatMap((interval) =>
                     eachDayOfInterval({
                       start: interval.start,
-                      end: interval.end,
+                      end: addDays(interval.end, -1),
                     })
                   )}
+                  dayClassName={(date) =>
+                    isDateBooked(date) ? "booked-date" : undefined
+                  }
                 />
               </div>
             )}
           </div>
-
           <div className="filter-item">
             <button
               className="guest-selection"

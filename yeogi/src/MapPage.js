@@ -39,7 +39,6 @@ function MapPage() {
     if (!map) return;
 
     try {
-      // 검색어를 URL 파라미터 대신 입력 필드 값으로 변경
       const response = await axios.get(
         `${API_BASE_URL}/api/accommodations/search`,
         {
@@ -48,8 +47,17 @@ function MapPage() {
       );
       const accommodations = response.data;
 
+      if (accommodations.length === 0) {
+        alert("검색 결과가 없습니다.");
+        return;
+      }
+
       const bounds = new window.kakao.maps.LatLngBounds();
       let customOverlays = [];
+
+      // 기존 오버레이 제거
+      customOverlays.forEach((item) => item.overlay.setMap(null));
+      customOverlays = [];
 
       accommodations.forEach((accommodation) => {
         const position = new window.kakao.maps.LatLng(
@@ -81,24 +89,15 @@ function MapPage() {
         });
       });
 
-      if (accommodations.length > 0) {
-        const geocoder = new window.kakao.maps.services.Geocoder();
-        // searchKeyword를 사용하여 주소 검색
-        geocoder.addressSearch(searchKeyword, function (result, status) {
-          if (status === window.kakao.maps.services.Status.OK) {
-            const moveLatLon = new window.kakao.maps.LatLng(
-              result[0].y,
-              result[0].x
-            );
-            map.setCenter(moveLatLon);
-          } else {
-            console.error(
-              "Geocode was not successful for the following reason: " + status
-            );
-          }
-        });
-      }
+      // 첫 번째 숙소 위치로 지도 중심 이동
+      const firstAccommodation = accommodations[0];
+      const centerPosition = new window.kakao.maps.LatLng(
+        firstAccommodation.latitude,
+        firstAccommodation.longitude
+      );
+      map.setCenter(centerPosition);
 
+      // 모든 숙소를 포함하도록 지도 범위 조정
       map.setBounds(bounds);
     } catch (error) {
       console.error("숙소 검색 중 오류 발생:", error);

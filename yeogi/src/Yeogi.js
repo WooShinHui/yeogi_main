@@ -55,7 +55,23 @@ function Yeogi() {
       console.error("추천 호텔 조회 오류:", error);
     }
   };
+  const isDateRangeAvailable = (accommodation, start, end) => {
+    if (!start || !end) return true;
+    if (!accommodation.bookings || !Array.isArray(accommodation.bookings))
+      return true;
 
+    const checkIn = new Date(start);
+    const checkOut = new Date(end);
+    return !accommodation.bookings.some((booking) => {
+      const bookingStart = new Date(booking.check_in_date);
+      const bookingEnd = new Date(booking.check_out_date);
+      return (
+        (checkIn >= bookingStart && checkIn < bookingEnd) ||
+        (checkOut > bookingStart && checkOut <= bookingEnd) ||
+        (checkIn <= bookingStart && checkOut >= bookingEnd)
+      );
+    });
+  };
   const handleSearch = async () => {
     if (!searchParams.destination) {
       alert("목적지를 입력해주세요.");
@@ -85,13 +101,24 @@ function Yeogi() {
         }
       );
 
-      setSearchResults(response.data);
+      // 예약 가능한 숙소만 필터링
+      const availableAccommodations = response.data.filter((accommodation) =>
+        isDateRangeAvailable(
+          accommodation,
+          searchParams.checkIn,
+          searchParams.checkOut
+        )
+      );
+
+      setSearchResults(availableAccommodations);
       // 검색 기록 저장
       await axios.post(
         "/api/search-history",
         { keyword: searchParams.destination },
         {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
         }
       );
       // URL 파라미터 업데이트

@@ -22,14 +22,21 @@ function ReservationPage() {
     console.log("체크아웃:", checkOut);
     console.log("인원 수:", guests);
 
+    const checkInDate = checkIn
+      ? parse(checkIn, "yyyy-MM-dd", new Date())
+      : new Date();
+    const checkOutDate = checkOut
+      ? parse(checkOut, "yyyy-MM-dd", new Date())
+      : addDays(new Date(), 1);
+    const nights = Math.ceil(
+      (checkOutDate - checkInDate) / (1000 * 60 * 60 * 24)
+    );
+
     return {
-      checkIn: checkIn
-        ? format(parse(checkIn, "yyyy-MM-dd", new Date()), "yyyy-MM-dd")
-        : format(new Date(), "yyyy-MM-dd"),
-      checkOut: checkOut
-        ? format(parse(checkOut, "yyyy-MM-dd", new Date()), "yyyy-MM-dd")
-        : format(addDays(new Date(), 1), "yyyy-MM-dd"),
+      checkIn: format(checkInDate, "yyyy-MM-dd"),
+      checkOut: format(checkOutDate, "yyyy-MM-dd"),
       guests: parseInt(guests) || 1,
+      nights: nights,
     };
   });
 
@@ -51,13 +58,15 @@ function ReservationPage() {
   }, [id, location.search, navigate]);
 
   const handleReservation = async () => {
+    if (!accommodation) return;
     try {
+      const totalPrice = accommodation.price * reservationInfo.nights;
       const paymentResponse = await api.post("/api/kakao-pay", {
         accommodationId: id,
         checkIn: reservationInfo.checkIn,
         checkOut: reservationInfo.checkOut,
         guests: reservationInfo.guests,
-        totalPrice: accommodation.price,
+        totalPrice: totalPrice,
       });
 
       if (paymentResponse.data.success) {
@@ -77,6 +86,7 @@ function ReservationPage() {
       );
     }
   };
+
   if (!accommodation) {
     return <div className="yeogi-container">로딩 중...</div>;
   }
@@ -108,7 +118,14 @@ function ReservationPage() {
               {reservationInfo.checkOut || "날짜를 선택해주세요"}
             </p>
             <p>
+              <strong>숙박 일수:</strong> {reservationInfo.nights}박
+            </p>
+            <p>
               <strong>인원 수:</strong> {reservationInfo.guests}명
+            </p>
+            <p>
+              <strong>총 가격:</strong>{" "}
+              {accommodation.price * reservationInfo.nights}원
             </p>
           </div>
           <button

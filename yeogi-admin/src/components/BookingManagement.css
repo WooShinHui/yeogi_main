@@ -40,3 +40,21 @@
 .delete-button:hover {
   background-color: #d32f2f;
 }
+.booking-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.booking-header h1 {
+  margin: 0;
+}
+
+.sort-button {
+  padding: 5px 10px;
+  color: white;
+  border: none;
+  cursor: pointer;
+  width: 64px;
+  font-size: 0.9em;
+}

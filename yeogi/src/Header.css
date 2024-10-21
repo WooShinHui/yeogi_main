@@ -57,3 +57,40 @@
   height: 24px;
   width: auto;
 }
+.menu-container {
+  position: relative;
+}
+
+.menu-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column; /* 세로 방향으로 변경 */
+  white-space: nowrap; /* 텍스트가 줄바꿈되지 않도록 설정 */
+}
+
+.dropdown-menu a {
+  color: black;
+  text-decoration: none;
+  padding: 5px 0; /* 상하 패딩 추가 */
+  margin-bottom: 5px; /* 항목 사이 간격 추가 */
+}
+
+.dropdown-menu a:last-child {
+  margin-bottom: 0; /* 마지막 항목의 아래쪽 마진 제거 */
+}
+
+.dropdown-menu a:hover {
+  background-color: #f0f0f0;
+}
