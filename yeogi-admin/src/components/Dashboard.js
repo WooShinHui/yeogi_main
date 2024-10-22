@@ -307,8 +307,15 @@ function Dashboard() {
             <h2>리뷰 삭제</h2>
             <p>다음 리뷰를 삭제하시겠습니까?</p>
             <p>{selectedReview.comment}</p>
-            <button onClick={handleDeleteReview}>삭제</button>
-            <button onClick={() => setShowDeleteModal(false)}>취소</button>
+            <button className="delete-button" onClick={handleDeleteReview}>
+              삭제
+            </button>
+            <button
+              className="cancel-button"
+              onClick={() => setShowDeleteModal(false)}
+            >
+              취소
+            </button>
           </div>
         </div>
       )}
