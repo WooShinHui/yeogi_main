@@ -28,13 +28,14 @@
   background-color: #f5f5f5;
 }
 
-.delete-button {
+.booking-table .delete-button {
   padding: 5px 10px;
   background-color: #f44336;
   color: white;
   border: none;
   cursor: pointer;
   border-radius: 4px;
+  align-self: end;
 }
 
 .delete-button:hover {
@@ -52,6 +53,7 @@
 
 .sort-button {
   padding: 5px 10px;
+  background-color: #4a90e2;
   color: white;
   border: none;
   cursor: pointer;

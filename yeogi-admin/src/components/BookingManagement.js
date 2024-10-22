@@ -108,7 +108,10 @@ function BookingManagement() {
                   <td>{formatDate(booking.check_out_date)}</td>
                   <td>{booking.guests}</td>
                   <td>
-                    <button onClick={() => handleDeleteBooking(booking.id)}>
+                    <button
+                      className="delete-button"
+                      onClick={() => handleDeleteBooking(booking.id)}
+                    >
                       삭제
                     </button>
                   </td>

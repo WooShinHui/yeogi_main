@@ -1,0 +1,102 @@
+.review-management {
+  padding: 20px;
+}
+
+.review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.review-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.review-table th,
+.review-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.review-table th {
+  background-color: #f2f2f2;
+  font-weight: bold;
+}
+
+.review-table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+/* 열 너비 조정 */
+.review-table th:nth-child(1),
+.review-table td:nth-child(1) {
+  width: 15%;
+}
+
+.review-table th:nth-child(2),
+.review-table td:nth-child(2) {
+  width: 20%;
+}
+
+.review-table th:nth-child(3),
+.review-table td:nth-child(3) {
+  width: 10%;
+}
+
+.review-table th:nth-child(4),
+.review-table td:nth-child(4) {
+  width: 35%;
+}
+
+.review-table th:nth-child(5),
+.review-table td:nth-child(5) {
+  width: 15%;
+}
+
+.review-table th:nth-child(6),
+.review-table td:nth-child(6) {
+  width: 5%;
+}
+
+.delete-button {
+  background-color: #ff4d4d;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+  border-radius: 3px;
+}
+
+.delete-button:hover {
+  background-color: #ff3333;
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+/* 내용 열에 대한 특별한 스타일 */
+.review-table td:nth-child(4) {
+  max-width: 300px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sort-button {
+  border: none;
+  color: white;
+  text-align: center;
+  text-decoration: none;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 4px;
+  white-space: nowrap;
+}

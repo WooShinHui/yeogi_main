@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./AccommodationsEdit.css";
 
 function AccommodationEdit() {
   const [accommodations, setAccommodations] = useState([]);
   const [selectedAccommodation, setSelectedAccommodation] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchAccommodations = async () => {
@@ -20,11 +22,14 @@ function AccommodationEdit() {
         }
       } catch (error) {
         console.error("숙소 목록 조회 실패:", error);
+        if (error.response && error.response.status === 401) {
+          navigate("/admin/login");
+        }
       }
     };
 
     fetchAccommodations();
-  }, []);
+  }, [navigate]);
 
   const handleAccommodationSelect = (e) => {
     const selected = accommodations.find(
@@ -56,12 +61,15 @@ function AccommodationEdit() {
           "주의: 이미 예약된 건에 대해서는 변경된 정보가 적용되지 않습니다."
         );
       }
-      // ... (나머지 코드)
     } catch (error) {
       console.error("숙소 정보 업데이트 실패:", error);
       alert("숙소 정보 업데이트에 실패했습니다.");
+      if (error.response && error.response.status === 401) {
+        navigate("/admin/login");
+      }
     }
   };
+
   if (!selectedAccommodation) return <div className="loading">로딩 중...</div>;
 
   return (
@@ -87,7 +95,6 @@ function AccommodationEdit() {
             value={selectedAccommodation.name}
             onChange={handleInputChange}
             required
-            placeholder="숙소 이름"
           />
         </div>
         <div className="form-group">
@@ -99,7 +106,6 @@ function AccommodationEdit() {
             value={selectedAccommodation.location}
             onChange={handleInputChange}
             required
-            placeholder="위치"
           />
         </div>
         <div className="form-group">
@@ -111,7 +117,6 @@ function AccommodationEdit() {
             value={selectedAccommodation.price}
             onChange={handleInputChange}
             required
-            placeholder="가격"
           />
         </div>
         <div className="form-group">
@@ -123,7 +128,6 @@ function AccommodationEdit() {
             value={selectedAccommodation.max_guests}
             onChange={handleInputChange}
             required
-            placeholder="최대 인원"
           />
         </div>
         <div className="form-group">
@@ -134,10 +138,11 @@ function AccommodationEdit() {
             value={selectedAccommodation.description}
             onChange={handleInputChange}
             required
-            placeholder="설명"
           ></textarea>
         </div>
-        <button type="submit">수정 완료</button>
+        <button className="edit-button" type="submit">
+          수정 완료
+        </button>
       </form>
     </div>
   );

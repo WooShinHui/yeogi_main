@@ -21,6 +21,12 @@ function Sidebar() {
         <li>
           <Link to="/admin/bookings">예약 관리</Link>
         </li>
+        <li>
+          <Link to="/admin/reviews">리뷰 관리</Link>
+        </li>
+        <li>
+          <Link to="/admin/users">회원 관리</Link>
+        </li>
       </ul>
     </nav>
   );

@@ -81,7 +81,7 @@ body {
 .Birth {
   width: 100%;
   max-width: 288px;
-  margin-top: var(--main-margin-3);
+  margin-bottom: var(--main-margin-3);
 }
 
 .Birth p {

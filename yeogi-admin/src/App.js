@@ -15,7 +15,8 @@ import Dashboard from "./components/Dashboard";
 import Sidebar from "./components/Sidebar";
 import ProtectedRoute from "./components/ProtectRoute";
 import "./App.css";
-
+import ReviewManagement from "./components/ReviewManagement";
+import UserManagement from "./components/UserManagement";
 function App() {
   return (
     <Router>
@@ -51,10 +52,34 @@ function App() {
               }
             />
             <Route
+              path="/admin/accommodation-edit/:id"
+              element={
+                <ProtectedRoute>
+                  <AccommodationEdit />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/admin/bookings"
               element={
                 <ProtectedRoute>
                   <BookingManagement />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/users"
+              element={
+                <ProtectedRoute>
+                  <UserManagement />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/reviews"
+              element={
+                <ProtectedRoute>
+                  <ReviewManagement />
                 </ProtectedRoute>
               }
             />

@@ -1,32 +1,23 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { registerLocale } from "react-datepicker";
-
 import ko from "date-fns/locale/ko";
-import {
-  format,
-  addDays,
-  isBefore,
-  isAfter,
-  isWithinInterval,
-  eachDayOfInterval,
-} from "date-fns";
+import { format, addDays, isWithinInterval, eachDayOfInterval } from "date-fns";
 import { FaCalendarAlt, FaUser } from "react-icons/fa";
 import "./AccommodationDetailPage.css";
-import axios from "axios";
 import "../styles/common.css";
 import api from "../api/axiosConfig";
-
+import { FaStar } from "react-icons/fa";
 registerLocale("ko", ko);
-axios.defaults.withCredentials = true;
 
 function AccommodationDetailPage() {
   const { id } = useParams();
   const location = useLocation();
+  const navigate = useNavigate();
   const [accommodation, setAccommodation] = useState(null);
   const [isLiked, setIsLiked] = useState(false);
   const [userId, setUserId] = useState(null);
@@ -38,18 +29,65 @@ function AccommodationDetailPage() {
   const [bookedDates, setBookedDates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const navigate = useNavigate();
+  const [reviews, setReviews] = useState([]);
+  const [averageRating, setAverageRating] = useState(0);
+
+  const fetchAccommodationData = useCallback(async () => {
+    setLoading(true);
+    try {
+      const response = await api.get(`/accommodations/${id}`);
+      setAccommodation(response.data);
+      if (response.data && response.data.bookings) {
+        const bookedDateRanges = response.data.bookings.map((booking) => ({
+          start: new Date(booking.check_in_date),
+          end: new Date(booking.check_out_date),
+        }));
+        setBookedDates(bookedDateRanges);
+      }
+    } catch (error) {
+      console.error("숙소 정보 가져오기 실패:", error);
+      setError("숙소 정보를 가져오는데 실패했습니다.");
+    } finally {
+      setLoading(false);
+    }
+  }, [id]);
+
+  const fetchReviews = useCallback(async () => {
+    try {
+      const response = await api.get(`/api/accommodations/${id}/reviews`);
+      setReviews(response.data);
+      const avgRating =
+        response.data.reduce((sum, review) => sum + review.rating, 0) /
+        response.data.length;
+      setAverageRating(avgRating || 0);
+    } catch (error) {
+      console.error("리뷰 조회 실패:", error);
+    }
+  }, [id]);
+
+  const checkLikeStatus = useCallback(async () => {
+    try {
+      const response = await api.get(`/api/likes/check/${userId}/${id}`);
+      setIsLiked(response.data.isLiked);
+    } catch (error) {
+      console.error("찜 상태 확인 실패:", error);
+    }
+  }, [userId, id]);
 
   useEffect(() => {
-    api
-      .get("/api/user")
-      .then((response) => {
+    const fetchUserData = async () => {
+      try {
+        const response = await api.get("/api/user");
         setUserId(response.data.id);
-      })
-      .catch((error) => {
+      } catch (error) {
         console.error("사용자 정보 가져오기 실패:", error);
         navigate("/");
-      });
+      }
+    };
+
+    fetchUserData();
+    fetchAccommodationData();
+    fetchReviews();
 
     const searchParams = new URLSearchParams(location.search);
     const checkInParam = searchParams.get("checkIn");
@@ -59,84 +97,47 @@ function AccommodationDetailPage() {
     if (checkInParam) setCheckIn(new Date(checkInParam));
     if (checkOutParam) setCheckOut(new Date(checkOutParam));
     if (guestsParam) setGuests(parseInt(guestsParam, 10));
-
-    fetchAccommodationData();
-  }, [id, location.search, navigate]);
+  }, [id, location.search, navigate, fetchAccommodationData, fetchReviews]);
 
   useEffect(() => {
     if (userId) {
       checkLikeStatus();
     }
-  }, [id, userId]);
+  }, [userId, checkLikeStatus]);
+
   useEffect(() => {
-    console.log("Updated bookedDates:", bookedDates);
-  }, [bookedDates]);
-  const fetchAccommodationData = () => {
-    setLoading(true);
-    axios
-      .get(`http://localhost:3001/accommodations/${id}`)
-      .then((response) => {
-        setAccommodation(response.data);
-        if (response.data && response.data.bookings) {
-          const bookedDateRanges = response.data.bookings.map((booking) => ({
-            start: new Date(booking.check_in_date),
-            end: new Date(booking.check_out_date),
-          }));
-          setBookedDates(bookedDateRanges);
-          console.log("Booked dates:", bookedDateRanges); // 추가된 로그
-        }
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error("숙소 정보 가져오기 실패:", error);
-        setError("숙소 정보를 가져오는데 실패했습니다.");
-        setLoading(false);
-      });
-  };
+    if (location.state?.reviewAdded) {
+      fetchReviews();
+    }
+  }, [location, fetchReviews]);
 
-  const checkLikeStatus = () => {
-    api
-      .get(`/api/likes/check/${userId}/${id}`)
-      .then((response) => {
-        setIsLiked(response.data.isLiked);
-      })
-      .catch((error) => console.error("찜 상태 확인 실패:", error));
-  };
-
-  const handleLike = () => {
+  const handleLike = async () => {
     if (!userId) {
       console.error("로그인이 필요합니다.");
       return;
     }
 
-    const likeAction = isLiked
-      ? api.delete("/api/likes", { data: { userId, accommodationId: id } })
-      : api.post("/api/likes", { userId, accommodationId: id });
-
-    likeAction
-      .then(() => {
-        setIsLiked(!isLiked);
-      })
-      .catch((error) => {
-        console.error(
-          isLiked ? "찜하기 취소 실패:" : "찜하기 추가 실패:",
-          error
-        );
-      });
+    try {
+      if (isLiked) {
+        await api.delete("/api/likes", {
+          data: { userId, accommodationId: id },
+        });
+      } else {
+        await api.post("/api/likes", { userId, accommodationId: id });
+      }
+      setIsLiked(!isLiked);
+    } catch (error) {
+      console.error(isLiked ? "찜하기 취소 실패:" : "찜하기 추가 실패:", error);
+    }
   };
 
   const isDateBooked = (date) => {
-    const result = bookedDates.some((range) => {
-      const isBooked = isWithinInterval(date, {
+    return bookedDates.some((range) =>
+      isWithinInterval(date, {
         start: range.start,
         end: addDays(range.end, -1),
-      });
-      console.log(
-        `Checking date ${date}: ${isBooked ? "booked" : "available"}`
-      );
-      return isBooked;
-    });
-    return result;
+      })
+    );
   };
 
   const handleDateChange = (dates) => {
@@ -182,8 +183,16 @@ function AccommodationDetailPage() {
     return "날짜 선택";
   };
 
-  if (!accommodation) {
+  if (loading) {
     return <div className="yeogi-container">로딩 중...</div>;
+  }
+
+  if (error) {
+    return <div className="yeogi-container">에러: {error}</div>;
+  }
+
+  if (!accommodation) {
+    return <div className="yeogi-container">숙소 정보를 찾을 수 없습니다.</div>;
   }
 
   return (
@@ -267,6 +276,60 @@ function AccommodationDetailPage() {
           >
             {isLiked ? "찜 취소" : "찜하기"}
           </button>
+        </div>
+        <div className="reviews-section">
+          <h2 className="reviews-title">리뷰 ({reviews.length})</h2>
+          <div className="reviews-summary">
+            <div className="average-rating">
+              <span className="average-rating-value">
+                {averageRating.toFixed(1)}
+              </span>
+              <div className="average-rating-stars">
+                {[...Array(5)].map((_, i) => (
+                  <FaStar
+                    key={i}
+                    color={
+                      i < Math.round(averageRating) ? "#ffc107" : "#e4e5e9"
+                    }
+                    size={20}
+                  />
+                ))}
+              </div>
+            </div>
+            <span className="total-reviews">{reviews.length} 리뷰</span>
+          </div>
+          <div className="reviews-list">
+            {reviews.map((review) => (
+              <div key={review.id} className="review-item">
+                <div className="review-header">
+                  <img
+                    src={review.profile_image}
+                    alt={review.nickname}
+                    className="review-profile-image"
+                  />
+                  <div className="review-author-info">
+                    <span className="review-author">{review.nickname}</span>
+                    <span className="review-date">
+                      {new Date(review.created_at).toLocaleDateString()}
+                    </span>
+                  </div>
+                </div>
+                <div className="review-body">
+                  <div className="review-rating">
+                    {[...Array(5)].map((_, i) => (
+                      <FaStar
+                        key={i}
+                        color={i < review.rating ? "#ffc107" : "#e4e5e9"}
+                        size={16}
+                      />
+                    ))}
+                    <span className="review-rating-value">{review.rating}</span>
+                  </div>
+                  <p className="review-comment">{review.comment}</p>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </main>
       <Footer />

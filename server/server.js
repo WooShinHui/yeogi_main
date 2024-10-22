@@ -447,7 +447,90 @@ app.post("/register", async (req, res) => {
     handleDatabaseError(res, error, "사용자 등록 중 오류 발생:");
   }
 });
+// 리뷰 작성
+app.post("/api/reviews", authenticateToken, async (req, res) => {
+  const { accommodation_id, booking_id, rating, comment } = req.body;
+  const user_id = req.user.id;
 
+  console.log("Received review data:", req.body);
+
+  if (!accommodation_id || !booking_id || !rating || !comment) {
+    return res.status(400).json({ error: "모든 필드를 입력해주세요." });
+  }
+
+  try {
+    // 예약 확인 및 체크아웃 날짜 확인
+    const [booking] = await queryDatabase(
+      "SELECT * FROM bookings WHERE id = ? AND user_id = ? AND status = 'confirmed' AND payment_status = 'completed' AND check_out_date < CURDATE()",
+      [booking_id, user_id]
+    );
+
+    if (!booking) {
+      return res.status(400).json({ error: "유효하지 않은 예약입니다." });
+    }
+
+    // 리뷰 작성
+    const result = await queryDatabase(
+      "INSERT INTO reviews (accommodation_id, user_id, booking_id, rating, comment) VALUES (?, ?, ?, ?, ?)",
+      [accommodation_id, user_id, booking_id, rating, comment]
+    );
+
+    res
+      .status(201)
+      .json({ message: "리뷰가 작성되었습니다.", id: result.insertId });
+  } catch (error) {
+    console.error("리뷰 작성 오류:", error);
+    res.status(500).json({ error: "서버 오류가 발생했습니다." });
+  }
+});
+
+// 숙소의 리뷰 조회
+app.get("/api/accommodations/:id/reviews", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const reviews = await queryDatabase(
+      `SELECT r.*, u.nickname, u.profile_image 
+       FROM reviews r 
+       JOIN yeogi_main u ON r.user_id = u.id 
+       WHERE r.accommodation_id = ? 
+       ORDER BY r.created_at DESC`,
+      [id]
+    );
+    res.json(reviews);
+  } catch (error) {
+    console.error("리뷰 조회 오류:", error);
+    res.status(500).json({ error: "서버 오류가 발생했습니다." });
+  }
+});
+
+// 사용자의 리뷰 작성 가능한 숙소 목록
+app.get(
+  "/api/user/reviewable-accommodations",
+  authenticateToken,
+  async (req, res) => {
+    const user_id = req.user.id;
+    try {
+      const accommodations = await queryDatabase(
+        `SELECT DISTINCT a.*, b.id as booking_id, b.check_out_date
+         FROM accommodations a
+         JOIN bookings b ON a.id = b.accommodation_id
+         LEFT JOIN reviews r ON b.id = r.booking_id
+         WHERE b.user_id = ? 
+           AND b.payment_status = 'completed' 
+           AND b.status = 'confirmed'
+           AND b.check_out_date < CURDATE()
+           AND r.id IS NULL`,
+        [user_id]
+      );
+      res.json(accommodations);
+    } catch (error) {
+      console.error("리뷰 가능한 숙소 조회 오류:", error);
+      res
+        .status(500)
+        .json({ error: "서버 오류가 발생했습니다.", details: error.message });
+    }
+  }
+);
 // 카카오페이 결제 요청
 app.post("/api/kakao-pay", authenticateToken, async (req, res) => {
   const { accommodationId, checkIn, checkOut, guests, totalPrice } = req.body;
@@ -1141,7 +1224,39 @@ app.set("trust proxy", 1);
 app.listen(PORT, () => {
   console.log(`서버가 포트 ${PORT}에서 실행 중입니다.`);
 });
-//------------------------------------------------------------------------관리자 페이지
+//------------------------------------------------------------------------관리자 페이지---------------------------------------------------------------
+// ... 기존 코드 ...
+
+app.delete("/api/admin/reviews/:id", authenticateToken, async (req, res) => {
+  try {
+    const reviewId = req.params.id;
+
+    // 리뷰 존재 여부 확인
+    const checkQuery = "SELECT * FROM reviews WHERE id = ?";
+    const checkResult = await queryDatabase(checkQuery, [reviewId]);
+
+    if (checkResult.length === 0) {
+      return res.status(404).json({ message: "리뷰를 찾을 수 없습니다." });
+    }
+
+    // 리뷰 삭제 쿼리 실행
+    const deleteQuery = "DELETE FROM reviews WHERE id = ?";
+    const deleteResult = await queryDatabase(deleteQuery, [reviewId]);
+
+    console.log("Delete query result:", deleteResult); // 디버깅을 위한 로그 추가
+
+    res.json({
+      message: "리뷰가 성공적으로 삭제되었습니다.",
+      deletedReview: checkResult[0],
+    });
+  } catch (error) {
+    console.error("리뷰 삭제 중 오류 발생:", error);
+    res.status(500).json({ message: "서버 오류가 발생했습니다." });
+  }
+});
+
+// ... 나머지 코드 ...
+
 app.post("/api/admin/login", async (req, res) => {
   const { email, password } = req.body;
   try {
@@ -1220,7 +1335,7 @@ app.get("/api/admin/dashboard", authenticateToken, async (req, res) => {
       [req.user.id]
     );
 
-    console.log("Recent bookings:", recentBookings); // 로그 추가
+    console.log("Recent bookings:", recentBookings);
 
     // 이번 달 일별 매출 데이터 조회
     const dailyRevenue = await queryDatabase(
@@ -1240,6 +1355,62 @@ app.get("/api/admin/dashboard", authenticateToken, async (req, res) => {
 
     console.log("Daily revenue data:", dailyRevenue);
 
+    // 인기 숙소 데이터 조회 추가
+    const popularAccommodations = await queryDatabase(
+      `
+  SELECT a.id, a.name, COUNT(l.id) as likes_count
+  FROM accommodations a
+  LEFT JOIN likes l ON a.id = l.accommodation_id
+  WHERE a.admin_id = ?
+  GROUP BY a.id
+  ORDER BY likes_count DESC
+  LIMIT 5
+  `,
+      [req.user.id]
+    );
+
+    // 최근 리뷰 조회
+    const recentReviews = await queryDatabase(
+      `
+      SELECT r.*, a.name as accommodation_name, u.nickname
+      FROM reviews r
+      JOIN accommodations a ON r.accommodation_id = a.id
+      JOIN yeogi_main u ON r.user_id = u.id
+      WHERE a.admin_id = ?
+      ORDER BY r.created_at DESC
+      LIMIT 5
+    `,
+      [req.user.id]
+    );
+    const dailyCheckIns = await queryDatabase(
+      `
+      SELECT DATE(b.check_in_date) as date, 
+             COUNT(*) as check_ins
+      FROM bookings b
+      JOIN accommodations a ON b.accommodation_id = a.id
+      WHERE a.admin_id = ?
+        AND YEAR(b.check_in_date) = YEAR(CURDATE())
+        AND MONTH(b.check_in_date) = MONTH(CURDATE())
+      GROUP BY DATE(b.check_in_date)
+      ORDER BY DATE(b.check_in_date)
+      `,
+      [req.user.id]
+    );
+
+    console.log("Daily check-ins data:", dailyCheckIns);
+    // 평균 평점 조회
+    const [averageRating] = await queryDatabase(
+      `
+      SELECT AVG(rating) as average_rating
+      FROM reviews r
+      JOIN accommodations a ON r.accommodation_id = a.id
+      WHERE a.admin_id = ?
+    `,
+      [req.user.id]
+    );
+
+    console.log("Popular accommodations:", popularAccommodations);
+
     // 결과 합치기
     const dashboardData = {
       today_check_ins: Number(dashboardStats.today_check_ins) || 0,
@@ -1249,21 +1420,121 @@ app.get("/api/admin/dashboard", authenticateToken, async (req, res) => {
       average_stay_duration: Number(dashboardStats.average_stay_duration) || 0,
       recentBookings,
       dailyRevenue,
+      dailyCheckIns, // 새로 추가된 일일 체크인 데이터
+      popularAccommodations,
+      recentReviews,
+      averageRating: Number(averageRating.average_rating) || 0,
     };
 
     console.log("Full dashboard data:", dashboardData);
 
-    res.json({
-      today_check_ins: Number(dashboardStats.today_check_ins) || 0,
-      today_check_outs: Number(dashboardStats.today_check_outs) || 0,
-      total_bookings: Number(dashboardStats.total_bookings) || 0,
-      monthly_revenue: Number(dashboardStats.monthly_revenue) || 0,
-      average_stay_duration: Number(dashboardStats.average_stay_duration) || 0,
-      recentBookings,
-      dailyRevenue,
-    });
+    res.json(dashboardData);
   } catch (error) {
     console.error("대시보드 데이터 조회 오류:", error);
+    res.status(500).json({ error: "서버 오류가 발생했습니다." });
+  }
+});
+app.get("/api/admin/reviews", authenticateToken, async (req, res) => {
+  if (!req.user.isAdmin) {
+    return res.status(403).json({ error: "관리자 권한이 없습니다." });
+  }
+
+  try {
+    const reviews = await queryDatabase(
+      `SELECT r.id, r.accommodation_id, r.user_id, r.rating, 
+              r.comment as content, r.created_at, 
+              a.name as accommodation_name, u.nickname, u.email
+       FROM reviews r
+       JOIN accommodations a ON r.accommodation_id = a.id
+       JOIN yeogi_main u ON r.user_id = u.id
+       WHERE a.admin_id = ?
+       ORDER BY r.created_at DESC`,
+      [req.user.id]
+    );
+
+    res.json({ reviews });
+  } catch (error) {
+    console.error("리뷰 목록 조회 오류:", error);
+    res.status(500).json({ error: "서버 오류가 발생했습니다." });
+  }
+});
+
+// 특정 리뷰 삭제
+app.delete("/api/admin/reviews/:id", authenticateToken, async (req, res) => {
+  if (!req.user.isAdmin) {
+    return res.status(403).json({ error: "관리자 권한이 없습니다." });
+  }
+
+  const reviewId = req.params.id;
+
+  try {
+    const result = await queryDatabase(
+      `DELETE r FROM reviews r
+       JOIN accommodations a ON r.accommodation_id = a.id
+       WHERE r.id = ? AND a.admin_id = ?`,
+      [reviewId, req.user.id]
+    );
+
+    if (result.affectedRows === 0) {
+      return res
+        .status(404)
+        .json({ error: "리뷰를 찾을 수 없거나 삭제 권한이 없습니다." });
+    }
+
+    res.json({ message: "리뷰가 성공적으로 삭제되었습니다." });
+  } catch (error) {
+    console.error("리뷰 삭제 오류:", error);
+    res.status(500).json({ error: "서버 오류가 발생했습니다." });
+  }
+});
+// 모든 사용자 정보 조회
+app.get("/api/admin/users", authenticateToken, async (req, res) => {
+  if (!req.user.isAdmin) {
+    return res.status(403).json({ error: "관리자 권한이 없습니다." });
+  }
+
+  try {
+    const users = await queryDatabase(
+      `SELECT id, email, nickname, profile_image, phone_number, 
+              IFNULL(DATE_FORMAT(birth, '%Y-%m-%d'), '') as birth,
+              IFNULL(DATE_FORMAT(created_at, '%Y-%m-%d'), '') as created_at,
+              IFNULL(DATE_FORMAT(last_login, '%Y-%m-%d'), '') as last_login
+       FROM yeogi_main`
+    );
+
+    res.json({ users });
+  } catch (error) {
+    console.error("사용자 목록 조회 오류:", error);
+    res.status(500).json({ error: "서버 오류가 발생했습니다." });
+  }
+});
+
+// 특정 사용자 삭제
+app.delete("/api/admin/users/:id", authenticateToken, async (req, res) => {
+  if (!req.user.isAdmin) {
+    return res.status(403).json({ error: "관리자 권한이 없습니다." });
+  }
+
+  const userId = req.params.id;
+
+  try {
+    // 사용자와 관련된 데이터 삭제 (예: 예약, 리뷰, 찜 목록 등)
+    await queryDatabase("DELETE FROM bookings WHERE user_id = ?", [userId]);
+    await queryDatabase("DELETE FROM reviews WHERE user_id = ?", [userId]);
+    await queryDatabase("DELETE FROM likes WHERE user_id = ?", [userId]);
+
+    // 사용자 삭제
+    const result = await queryDatabase("DELETE FROM yeogi_main WHERE id = ?", [
+      userId,
+    ]);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: "사용자를 찾을 수 없습니다." });
+    }
+
+    res.json({ message: "사용자가 성공적으로 삭제되었습니다." });
+  } catch (error) {
+    console.error("사용자 삭제 오류:", error);
     res.status(500).json({ error: "서버 오류가 발생했습니다." });
   }
 });

@@ -14,9 +14,9 @@
   margin-left: -16px;
   margin-right: 0px;
   height: calc(100vh - 144px);
-  padding: 16px 0px 92px 16px;
+  padding: 16px 0px 0px 16px;
 }
-.yeogi-main.accommodation-detail-content img {
+.yeogi-main.accommodation-detail-content .my-page-accommodation-image {
   width: 100%;
   object-fit: cover; /* 이미지를 컨테이너에 맞게 조절 */
   object-position: center; /* 이미지를 중앙에 위치 */
@@ -114,4 +114,129 @@
 
 .react-datepicker__day.booked-date:hover {
   background-color: #f0f0f0;
+}
+.reviews-section {
+  margin-top: 40px;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.reviews-title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.reviews-summary {
+  display: flex;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.average-rating {
+  display: flex;
+  align-items: center;
+  margin-right: 20px;
+}
+
+.average-rating-value {
+  font-size: 36px;
+  font-weight: bold;
+  color: #ff385c;
+  margin-right: 10px;
+}
+
+.average-rating-stars {
+  display: flex;
+}
+
+.total-reviews {
+  font-size: 16px;
+  color: #666;
+}
+
+.reviews-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.review-item {
+  padding: 20px;
+  background-color: #f8f8f8;
+  border-radius: 8px;
+}
+
+.review-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.review-profile-image {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 15px;
+}
+
+.review-author-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.review-author {
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 3px;
+}
+
+.review-date {
+  font-size: 12px;
+  color: #999;
+}
+
+.review-body {
+  display: flex;
+  flex-direction: column;
+}
+
+.review-rating {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.review-rating-value {
+  margin-left: 5px;
+  font-weight: bold;
+  color: #ff385c;
+}
+
+.review-comment {
+  font-size: 14px;
+  color: #333;
+  line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+  .reviews-section {
+    padding: 15px;
+  }
+
+  .reviews-title {
+    font-size: 20px;
+  }
+
+  .average-rating-value {
+    font-size: 28px;
+  }
+
+  .review-item {
+    padding: 15px;
+  }
 }

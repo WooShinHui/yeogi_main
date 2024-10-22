@@ -1,0 +1,94 @@
+.user-management {
+  padding: 20px;
+}
+
+.user-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.user-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.search-input {
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.user-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.user-table th,
+.user-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.user-table th {
+  background-color: #f2f2f2;
+  font-weight: bold;
+}
+
+.user-table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+/* 열 너비 조정 */
+.user-table th:nth-child(1),
+.user-table td:nth-child(1) {
+  width: 25%; /* 이메일 */
+}
+
+.user-table th:nth-child(2),
+.user-table td:nth-child(2) {
+  width: 15%; /* 닉네임 */
+}
+
+.user-table th:nth-child(3),
+.user-table td:nth-child(3) {
+  width: 15%; /* 전화번호 */
+}
+
+.user-table th:nth-child(4),
+.user-table td:nth-child(4) {
+  width: 15%; /* 가입일 */
+}
+
+.user-table th:nth-child(5),
+.user-table td:nth-child(5) {
+  width: 15%; /* 마지막 로그인 */
+}
+
+.user-table th:nth-child(6),
+.user-table td:nth-child(6) {
+  width: 5%; /* 회원 관리 */
+}
+
+.delete-button {
+  background-color: #ff4d4d;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+  border-radius: 3px;
+}
+
+.delete-button:hover {
+  background-color: #ff3333;
+}
+
+.table-container {
+  overflow-x: auto;
+}
