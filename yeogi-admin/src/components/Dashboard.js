@@ -55,22 +55,25 @@ function Dashboard() {
         `/api/admin/inquiries/${selectedInquiry.id}/answer`,
         { response: answerContent },
         {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
         }
       );
-
+      // 성공 시 대시보드 데이터 새로고침
       const dashboardResponse = await axios.get("/api/admin/dashboard", {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
+
       setDashboardData(dashboardResponse.data);
       setShowAnswerModal(false);
       setSelectedInquiry(null);
       setAnswerContent("");
     } catch (error) {
       console.error("문의 답변 중 오류 발생:", error);
-      alert("문의 답변 중 오류가 발생했습니다.");
+      alert("문의 답변 등록에 실패했습니다. 다시 시도해주세요.");
     }
   };
 
@@ -170,7 +173,30 @@ function Dashboard() {
   return (
     <div className="dashboard">
       <h1 className="dashboard-title">관리자 대시보드</h1>
-
+      <div className="today-summary">
+        <div className="summary-item">
+          <div className="summary-title">오늘의 체크인</div>
+          <div className="summary-value">{dashboardData.today_check_ins}</div>
+        </div>
+        <div className="summary-item">
+          <div className="summary-title">오늘의 체크아웃</div>
+          <div className="summary-value">{dashboardData.today_check_outs}</div>
+        </div>
+        <div className="summary-item">
+          <div className="summary-title">답변 대기</div>
+          <div className="summary-value">
+            {dashboardData.recentInquiries?.filter(
+              (inquiry) => inquiry.status === "pending"
+            ).length || 0}
+          </div>
+        </div>
+        <div className="summary-item">
+          <div className="summary-title">오늘의 예약</div>
+          <div className="summary-value">
+            {dashboardData.today_bookings || 0}
+          </div>
+        </div>
+      </div>
       {/* 1-2. 상단 그래프 섹션 */}
       <div className="dashboard-stats">
         <div className="left-column">
@@ -284,37 +310,23 @@ function Dashboard() {
             <ul className="inquiry-list">
               {dashboardData.recentInquiries?.map((inquiry) => (
                 <li key={inquiry.id} className="inquiry-item">
-                  <div className="inquiry-header">
-                    <span className="inquiry-title">{inquiry.title}</span>
-                    <span className={`inquiry-status ${inquiry.status}`}>
-                      {inquiry.status === "pending" ? "답변대기" : "답변완료"}
-                    </span>
-                  </div>
-                  <div className="inquiry-content">{inquiry.content}</div>
-                  <div className="inquiry-info">
-                    <span className="inquiry-user">
-                      작성자: {inquiry.nickname}
-                    </span>
-                    <span className="inquiry-date">
-                      {formatDate(inquiry.created_at)}
-                    </span>
-                  </div>
-                  {inquiry.status === "pending" && (
-                    <button
-                      className="answer-button"
-                      onClick={() => handleAnswerInquiry(inquiry)}
-                    >
-                      답변하기
-                    </button>
-                  )}
-                  {inquiry.status === "answered" && (
-                    <div className="inquiry-response">
-                      <div className="response-content">{inquiry.response}</div>
-                      <div className="response-date">
-                        답변일: {formatDate(inquiry.response_date)}
-                      </div>
-                    </div>
-                  )}
+                  <span className="inquiry-title">{inquiry.title}</span>
+                  <span className="inquiry-content">{inquiry.content}</span>
+                  <span className="inquiry-user">
+                    작성자: {inquiry.nickname}
+                  </span>
+                  <span className="inquiry-date">
+                    {formatDate(inquiry.created_at)}
+                  </span>
+                  <button
+                    className={`answer-button ${
+                      inquiry.status === "answered" ? "answered" : ""
+                    }`}
+                    onClick={() => handleAnswerInquiry(inquiry)}
+                    disabled={inquiry.status === "answered"}
+                  >
+                    {inquiry.status === "answered" ? "답변완료" : "답변하기"}
+                  </button>
                 </li>
               ))}
             </ul>
@@ -404,23 +416,26 @@ function Dashboard() {
             <p>문의 내용: {selectedInquiry.content}</p>
             <textarea
               value={answerContent}
+              className="answer-textarea"
               onChange={(e) => setAnswerContent(e.target.value)}
               placeholder="답변을 입력하세요"
               rows={4}
             />
-            <button className="submit-button" onClick={handleSubmitAnswer}>
-              답변 등록
-            </button>
-            <button
-              className="cancel-button"
-              onClick={() => {
-                setShowAnswerModal(false);
-                setSelectedInquiry(null);
-                setAnswerContent("");
-              }}
-            >
-              취소
-            </button>
+            <div className="answer-button-container">
+              <button className="submit-button" onClick={handleSubmitAnswer}>
+                답변 등록
+              </button>
+              <button
+                className="cancel-button"
+                onClick={() => {
+                  setShowAnswerModal(false);
+                  setSelectedInquiry(null);
+                  setAnswerContent("");
+                }}
+              >
+                취소
+              </button>
+            </div>
           </div>
         </div>
       )}

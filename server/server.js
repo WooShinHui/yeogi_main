@@ -1350,6 +1350,22 @@ CREATE TABLE IF NOT EXISTS inquiries (
 )`;
 
 // 문의 등록 API
+// 사용자의 문의 내역 조회
+app.get("/api/inquiries", authenticateToken, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const query = `
+      SELECT * FROM inquiries 
+      WHERE user_id = ? 
+      ORDER BY created_at DESC
+    `;
+    const inquiries = await queryDatabase(query, [userId]);
+    res.json(inquiries);
+  } catch (error) {
+    console.error("문의 내역 조회 오류:", error);
+    res.status(500).json({ error: "서버 오류가 발생했습니다." });
+  }
+});
 app.post("/api/inquiries", authenticateToken, async (req, res) => {
   const { title, content } = req.body;
   const userId = req.user.id;
@@ -1386,7 +1402,38 @@ app.get("/api/admin/inquiries", authenticateToken, async (req, res) => {
   }
 });
 // ... 나머지 코드 ...
+// ... existing code ...
 
+// 관리자용 문의 답변 API
+app.post(
+  "/api/admin/inquiries/:id/answer",
+  authenticateToken,
+  async (req, res) => {
+    if (!req.user.isAdmin) {
+      return res.status(403).json({ error: "관리자 권한이 없습니다." });
+    }
+
+    const inquiryId = req.params.id;
+    const { response } = req.body;
+
+    try {
+      // 답변 업데이트 및 상태 변경
+      await queryDatabase(
+        `UPDATE inquiries 
+       SET response = ?, 
+           status = 'answered', 
+           response_date = NOW() 
+       WHERE id = ?`,
+        [response, inquiryId]
+      );
+
+      res.json({ message: "답변이 등록되었습니다." });
+    } catch (error) {
+      console.error("문의 답변 등록 오류:", error);
+      res.status(500).json({ error: "서버 오류가 발생했습니다." });
+    }
+  }
+);
 app.post("/api/admin/login", async (req, res) => {
   const { email, password, adminCode } = req.body;
 
@@ -1437,6 +1484,12 @@ app.get("/api/admin/dashboard", authenticateToken, async (req, res) => {
       WHERE a.admin_id = ?
       `,
       [req.user.id]
+    );
+    const todayBookings = await queryDatabase(
+      `SELECT COUNT(*) as today_bookings 
+       FROM bookings 
+       WHERE DATE(created_at) = CURDATE() 
+       AND payment_status = 'completed'`
     );
 
     const recentBookings = await queryDatabase(
@@ -1555,6 +1608,7 @@ app.get("/api/admin/dashboard", authenticateToken, async (req, res) => {
       recentReviews,
       averageRating: Number(averageRating.average_rating) || 0,
       recentInquiries, // 최근 문의 데이터 추가
+      todayBookings: Number(todayBookings[0].today_bookings) || 0,
     };
 
     res.json(dashboardData);
