@@ -1,34 +1,40 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import "./AdminLogin.css"; // CSS 파일을 import 합니다
+import "./AdminLogin.css";
 
-function AdminLogin() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+const AdminLogin = () => {
   const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+    adminCode: "",
+  });
+  const [error, setError] = useState("");
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("/api/admin/login", {
-        email,
-        password,
-      });
+      console.log("Sending login request:", formData);
+      const response = await axios.post("/api/admin/login", formData);
       console.log("Login response:", response.data);
-      localStorage.setItem("token", response.data.token);
-      console.log("Token saved:", localStorage.getItem("token"));
-      localStorage.setItem("adminId", response.data.adminId);
-      localStorage.setItem("adminName", response.data.name);
 
-      if (response.data.hasAccommodations) {
+      if (response.data.token) {
+        localStorage.setItem("adminToken", response.data.token);
+        localStorage.setItem("adminId", response.data.adminId);
+        console.log("Token stored:", localStorage.getItem("adminToken"));
+
         navigate("/admin/dashboard");
       } else {
-        navigate("/admin/register-accommodation");
+        setError("토큰이 발급되지 않았습니다.");
       }
     } catch (error) {
-      setError("로그인에 실패했습니다.");
+      console.error("Login error:", error.response?.data);
+      setError(error.response?.data?.error || "로그인에 실패했습니다.");
     }
   };
 
@@ -41,9 +47,10 @@ function AdminLogin() {
           <label htmlFor="email">이메일:</label>
           <input
             id="email"
+            name="email"
             type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            value={formData.email}
+            onChange={handleChange}
             required
           />
         </div>
@@ -51,9 +58,21 @@ function AdminLogin() {
           <label htmlFor="password">비밀번호:</label>
           <input
             id="password"
+            name="password"
             type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            value={formData.password}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="adminCode">관리자 코드:</label>
+          <input
+            id="adminCode"
+            name="adminCode"
+            type="text"
+            value={formData.adminCode}
+            onChange={handleChange}
             required
           />
         </div>
@@ -63,6 +82,5 @@ function AdminLogin() {
       </form>
     </div>
   );
-}
-
+};
 export default AdminLogin;

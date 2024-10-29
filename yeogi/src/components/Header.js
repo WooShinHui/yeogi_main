@@ -9,6 +9,7 @@ function Header({ title, showBackButton, centerTitle }) {
   const toggleMenu = () => {
     setShowMenu(!showMenu);
   };
+
   return (
     <header className="yeogi-header">
       {showBackButton ? (
@@ -42,6 +43,9 @@ function Header({ title, showBackButton, centerTitle }) {
             </Link>
             <Link to="/edit-profile" onClick={toggleMenu}>
               회원정보 수정
+            </Link>
+            <Link to="/inquiry" onClick={toggleMenu}>
+              1:1 문의
             </Link>
           </div>
         )}

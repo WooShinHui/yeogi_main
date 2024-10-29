@@ -11,27 +11,20 @@
 .dashboard-stats {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 20px;
-  /* 추가: 높이를 맞추기 위한 설정 */
+
   align-items: stretch;
+}
+
+.dashboard-bottom {
+  display: flex;
+  justify-content: space-between;
 }
 
 .left-column,
 .right-column {
-  width: 48%;
-  /* 추가: 컬럼을 flex 컨테이너로 만들어 내부 요소들을 세로로 정렬 */
+  width: 49%; /* 48%에서 49.5%로 수정하여 간격 축소 */
   display: flex;
   flex-direction: column;
-}
-
-/* 추가: 왼쪽 컬럼의 마지막 요소(stats-row)를 제외한 모든 직계 자식에게 flex-grow 적용 */
-.left-column > *:not(:last-child) {
-  flex-grow: 1;
-}
-
-/* 추가: 오른쪽 컬럼의 revenue-charts에 flex-grow 적용 */
-.right-column .revenue-charts {
-  flex-grow: 1;
 }
 
 .card {
@@ -40,70 +33,28 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   padding: 20px;
   margin-bottom: 20px;
-  /* 추가: 카드를 flex 컨테이너로 만들어 내부 요소를 세로 정렬 */
   display: flex;
   flex-direction: column;
+  height: 100%;
 }
 
-.card-value {
-  font-size: 48px;
-  font-weight: bold;
+.card-title {
+  font-size: 1.2rem;
+  color: #333;
+  margin-bottom: 15px;
 }
 
-.check-in-out-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  text-align: center;
-  gap: 20px;
+/* 체크인/체크아웃 그래프 */
+.check-in-out-graph {
+  height: 350px;
 }
 
-.check-in,
-.check-out {
-  text-align: center;
-  width: 48%;
+/* 일일 매출 그래프 */
+.revenue-chart {
+  height: 350px;
 }
 
-.highlight {
-  color: #007bff;
-  font-weight: bold;
-  font-size: 48px;
-}
-
-.highlight.red {
-  color: #dc3545;
-}
-
-.booking-list {
-  list-style-type: none;
-  padding: 0;
-}
-
-.booking-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 0;
-  border-bottom: 1px solid #eee;
-}
-
-.booking-name,
-.booking-date,
-.guest-name,
-.guest-email,
-.guest-phone {
-  flex: 1;
-  text-align: left;
-  padding: 0 10px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.popular-accommodations {
-  margin-top: 20px;
-}
-
+/* 인기 숙소 순위 */
 .popular-list {
   list-style-type: none;
   padding: 0;
@@ -123,117 +74,59 @@
 .popular-item .rank {
   font-weight: bold;
   margin-right: 10px;
+  width: 30px;
 }
 
 .popular-item .name {
   flex-grow: 1;
 }
-.manage-button {
-  background-color: #007bff;
-  border: none;
-  color: white;
-  padding: 5px 10px;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 14px;
-  margin: 4px 2px;
-  cursor: pointer;
-  width: 64px;
-  border-radius: 4px;
-}
-.popular-item .likes {
-  color: #ff6b6b;
-  font-weight: bold;
+
+/* 최근 예약 */
+/* 최근 예약 스타일 수정 */
+.booking-list {
+  list-style-type: none;
+  padding: 0;
 }
 
-/* 반응형 스타일 유지 */
-@media (max-width: 768px) {
-  .dashboard-stats {
-    flex-direction: column;
-  }
-
-  .left-column,
-  .right-column {
-    width: 100%;
-  }
+.booking-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #eee;
+  flex-direction: row; /* column에서 row로 변경 */
 }
 
-.monthly-revenue {
-  background-color: #ffffff;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  padding: 20px;
-  margin-bottom: 20px;
-  height: auto;
+.booking-item:last-child {
+  border-bottom: none;
 }
 
-.monthly-revenue .card-title {
-  font-size: 1.2rem;
-  color: #333;
-  margin-bottom: 10px;
-  text-align: left;
-}
-.total-bookings {
-  font-size: 48px;
-  text-align: center;
-}
-.monthly-revenue .card-value {
-  font-size: 2rem;
-  font-weight: bold;
-  color: #007bff;
-  margin: 0 0 16px 0;
-  text-align: right;
-}
-.monthly-revenue .card-title {
-  font-weight: bold;
-  text-align: right;
-}
-.monthly-revenue .revenue-chart {
-  height: 300px;
-  margin-top: 20px;
-}
-
-.monthly-revenue .recharts-wrapper {
-  margin: 0 auto;
-}
-
-.monthly-revenue .recharts-surface {
-  overflow: visible;
-}
-
-.monthly-revenue .recharts-cartesian-grid-horizontal line,
-.monthly-revenue .recharts-cartesian-grid-vertical line {
-  stroke: #f0f0f0;
-}
-
-.monthly-revenue .recharts-cartesian-axis-tick-value {
-  font-size: 0.8rem;
-  fill: #666;
-}
-
-.monthly-revenue .recharts-tooltip-wrapper {
-  background-color: rgba(255, 255, 255, 0.9);
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.monthly-revenue .recharts-default-tooltip {
-  background-color: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-}
+.booking-name,
+.booking-date,
+.guest-name,
+.guest-email,
 .guest-phone {
   flex: 1;
   text-align: left;
-  padding: 0 10px 0 0;
+  padding: 0 10px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.recent-reviews {
-  margin-top: 20px;
+
+.booking-name {
+  font-weight: bold;
+  flex: 1.5;
+}
+
+.booking-date {
+  flex: 1.5;
+}
+
+.guest-name,
+.guest-email,
+.guest-phone {
+  flex: 1;
 }
 
 .review-list {
@@ -242,149 +135,65 @@
 }
 
 .review-item {
-  display: grid;
-  grid-template-columns: 1.7fr 1fr 10fr 2fr 1fr 1fr;
-  gap: 10px;
-  align-items: center;
-  background-color: #ffffff;
-  border: 1px solid #e0e0e0;
-  border-radius: 4px;
   padding: 15px;
-  margin-bottom: 10px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid #eee;
+  display: grid;
+  grid-template-columns: 2fr 1fr 4fr 2fr 1.5fr auto;
+  gap: 15px;
+  align-items: center;
 }
-.manage-button {
-  justify-self: end;
+
+.review-item:last-child {
+  border-bottom: none;
 }
+
 .review-accommodation {
   font-weight: bold;
-  font-size: 1.1em;
-  margin-bottom: 5px;
-  color: #333;
 }
 
 .review-rating {
-  display: inline-block;
-  color: #ffffff;
-  padding: 3px 8px;
-  border-radius: 3px;
-  font-weight: bold;
-  margin-bottom: 5px;
+  display: flex;
+  gap: 2px;
 }
 
-.review-comment {
-  max-height: 3em;
-  overflow-y: auto;
-  white-space: normal;
-}
-
-.review-user,
-.review-date {
-  font-size: 0.9em;
-  color: #777;
-}
-
-.review-user {
-  font-weight: bold;
-}
-
-.average-rating {
-  background-color: #f39c12;
-  color: #007bff;
-  padding: 15px;
-  border-radius: 4px;
-  text-align: center;
-}
-
-.average-rating .card-title {
-  font-size: 1.2em;
-  margin-bottom: 5px;
-}
-
-.average-rating .card-value {
-  font-size: 2.5em;
-  font-weight: bold;
-}
 .star {
   color: #ddd;
-  font-size: 24px;
+  font-size: 16px;
 }
 
 .star.filled {
   color: #f39c12;
 }
 
-.review-rating {
-  margin-bottom: 5px;
+.review-comment {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.average-rating .card-value {
-  font-size: 36px;
-  margin-bottom: 5px;
-}
-
-.average-rating p:last-child {
-  font-size: 24px;
-  font-weight: bold;
+.review-user,
+.review-date {
   color: #666;
-}
-.stats-row {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 20px;
+  font-size: 0.9em;
 }
 
-.stats-card {
-  width: 48%;
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  padding: 20px;
-  text-align: center;
+/* 버튼 스타일 */
+.manage-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9em;
+  width: 64px;
 }
 
-.stats-card .card-title {
-  font-size: 1.2rem;
-  margin-bottom: 5px;
+.manage-button:hover {
+  background-color: #0056b3;
 }
 
-.stats-card .card-value {
-  font-size: 36px;
-  font-weight: bold;
-  margin-bottom: 0px;
-}
-
-.revenue-charts {
-  display: flex;
-  flex-direction: column;
-}
-
-.revenue-chart {
-  margin-bottom: 20px;
-}
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-}
-
-.review-management {
-  margin-top: 1rem;
-  text-align: right;
-}
-
-.review-item input[type="checkbox"] {
-  margin-right: 10px;
-}
-.card-title-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.dashboard-stats .card-title {
-  font-size: 1.2rem;
-}
+/* 모달 스타일 */
 .modal {
   position: fixed;
   top: 0;
@@ -395,21 +204,68 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 1000;
 }
 
 .modal-content {
   background-color: white;
   padding: 20px;
-  border-radius: 5px;
-  text-align: center;
+  border-radius: 8px;
+  width: 400px;
+}
+
+.modal-content h2 {
+  margin-bottom: 15px;
 }
 
 .modal-content button {
   margin: 10px;
-  padding: 5px 10px;
+  padding: 8px 20px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+}
+
+.delete-button {
+  background-color: #dc3545;
+  color: white;
 }
 
 .cancel-button {
+  background-color: #6c757d;
+  color: white;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .dashboard-stats,
+  .dashboard-bottom {
+    flex-direction: column;
+  }
+
+  .left-column,
+  .right-column {
+    width: 100%;
+  }
+
+  .review-item {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+}
+
+/* 그래프 스타일링 */
+.recharts-wrapper {
+  margin: 0 auto;
+}
+
+.recharts-surface {
+  overflow: visible;
+}
+
+.recharts-tooltip-wrapper {
+  background-color: rgba(255, 255, 255, 0.9);
+  border: 1px solid #ccc;
   border-radius: 4px;
-  border: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }

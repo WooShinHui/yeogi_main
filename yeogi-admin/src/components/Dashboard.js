@@ -24,32 +24,62 @@ function Dashboard() {
     recentBookings: [],
     dailyRevenue: [],
     dailyCheckIns: [],
+    dailyCheckOuts: [],
     popularAccommodations: [],
     recentReviews: [],
+    recentInquiries: [],
     averageRating: 0,
   });
+
   const navigate = useNavigate();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedReview, setSelectedReview] = useState(null);
+  const [activeTab, setActiveTab] = useState("bookings");
+  const [showAnswerModal, setShowAnswerModal] = useState(false);
+  const [selectedInquiry, setSelectedInquiry] = useState(null);
+  const [answerContent, setAnswerContent] = useState("");
 
   const handleManageReview = (review) => {
     setSelectedReview(review);
     setShowDeleteModal(true);
   };
 
-  const handleDeleteReview = async () => {
+  const handleAnswerInquiry = (inquiry) => {
+    setSelectedInquiry(inquiry);
+    setShowAnswerModal(true);
+  };
+
+  const handleSubmitAnswer = async () => {
     try {
-      console.log("Deleting review with ID:", selectedReview.id); // 디버깅을 위한 로그 추가
-      const response = await axios.delete(
-        `/api/admin/reviews/${selectedReview.id}`,
+      await axios.post(
+        `/api/admin/inquiries/${selectedInquiry.id}/answer`,
+        { response: answerContent },
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         }
       );
 
-      console.log("Delete response:", response.data); // 디버깅을 위한 로그 추가
+      const dashboardResponse = await axios.get("/api/admin/dashboard", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      setDashboardData(dashboardResponse.data);
+      setShowAnswerModal(false);
+      setSelectedInquiry(null);
+      setAnswerContent("");
+    } catch (error) {
+      console.error("문의 답변 중 오류 발생:", error);
+      alert("문의 답변 중 오류가 발생했습니다.");
+    }
+  };
 
-      // 대시보드 데이터 새로고침
+  const handleDeleteReview = async () => {
+    try {
+      await axios.delete(`/api/admin/reviews/${selectedReview.id}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+
       const dashboardResponse = await axios.get("/api/admin/dashboard", {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -60,10 +90,10 @@ function Dashboard() {
       setSelectedReview(null);
     } catch (error) {
       console.error("리뷰 삭제 중 오류 발생:", error);
-      // 사용자에게 오류 메시지 표시
       alert("리뷰 삭제 중 오류가 발생했습니다.");
     }
   };
+
   const renderStars = (rating) => {
     const stars = [];
     for (let i = 1; i <= 5; i++) {
@@ -109,150 +139,216 @@ function Dashboard() {
     return format(parseISO(dateString), "yyyy-MM-dd");
   };
 
+  const processCheckInOutData = () => {
+    const combinedData = {};
+
+    dashboardData.dailyCheckIns.forEach((item) => {
+      combinedData[item.date] = {
+        date: item.date,
+        check_ins: item.check_ins,
+        check_outs: 0,
+      };
+    });
+
+    dashboardData.dailyCheckOuts.forEach((item) => {
+      if (combinedData[item.date]) {
+        combinedData[item.date].check_outs = item.check_outs;
+      } else {
+        combinedData[item.date] = {
+          date: item.date,
+          check_ins: 0,
+          check_outs: item.check_outs,
+        };
+      }
+    });
+
+    return Object.values(combinedData).sort(
+      (a, b) => new Date(a.date) - new Date(b.date)
+    );
+  };
+
   return (
     <div className="dashboard">
       <h1 className="dashboard-title">관리자 대시보드</h1>
+
+      {/* 1-2. 상단 그래프 섹션 */}
       <div className="dashboard-stats">
-        <div className="column left-column">
-          <div className="card check-in-out-container">
-            <div className="check-in">
-              <h2 className="card-title">오늘의 체크인</h2>
-              <p
-                className={`card-value ${
-                  dashboardData.today_check_ins > 0 ? "highlight" : ""
-                }`}
-              >
-                {dashboardData.today_check_ins}
-              </p>
-            </div>
-            <div className="check-out">
-              <h2 className="card-title">오늘의 체크아웃</h2>
-              <p
-                className={`card-value ${
-                  dashboardData.today_check_outs > 0 ? "highlight red" : ""
-                }`}
-              >
-                {dashboardData.today_check_outs}
-              </p>
-            </div>
-          </div>
-          <div className="card total-bookings">
-            <h2 className="card-title">총 예약 수</h2>
-            <p className="card-value">{dashboardData.total_bookings}</p>
-          </div>
-          <div className="stats-row">
-            <div className="stats-card average-stay">
-              <h2 className="card-title">평균 숙박 일수</h2>
-              <p className="card-value">
-                {dashboardData.average_stay_duration?.toFixed(1) || 0}일
-              </p>
-            </div>
-            <div className="stats-card average-rating">
-              <h2 className="card-title">평균 평점</h2>
-              <p className="card-value">
-                {renderStars(Math.round(dashboardData.averageRating))}
-              </p>
-              <p>{dashboardData.averageRating.toFixed(1)}</p>
-            </div>
+        <div className="left-column">
+          <div className="card check-in-out-graph">
+            <h2 className="card-title">체크인/체크아웃 현황</h2>
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={processCheckInOutData()}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis
+                  dataKey="date"
+                  tickFormatter={(date) => format(new Date(date), "MM/dd")}
+                />
+                <YAxis />
+                <Tooltip
+                  formatter={(value) => `${value}명`}
+                  labelFormatter={(label) =>
+                    format(new Date(label), "yyyy-MM-dd")
+                  }
+                />
+                <Legend />
+                <Line
+                  type="monotone"
+                  dataKey="check_outs"
+                  name="체크아웃"
+                  stroke="#ff7f7f"
+                  strokeWidth={1.5}
+                  strokeOpacity={0.5}
+                  dot={{ strokeWidth: 1 }}
+                  activeDot={{ r: 6 }}
+                  zIndex={1}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="check_ins"
+                  name="체크인"
+                  stroke="#82ca9d"
+                  strokeWidth={2}
+                  activeDot={{ r: 8 }}
+                  zIndex={2}
+                />
+              </LineChart>
+            </ResponsiveContainer>
           </div>
         </div>
-        <div className="column right-column">
-          <div className="card revenue-charts">
-            <div className="revenue-chart monthly-revenue">
-              <h2 className="card-title">이번 달 매출</h2>
-              <p className="card-value">
-                {new Intl.NumberFormat("ko-KR", {
-                  style: "currency",
-                  currency: "KRW",
-                }).format(dashboardData.monthly_revenue || 0)}
-              </p>
-              {dashboardData.dailyRevenue &&
-              dashboardData.dailyRevenue.length > 0 ? (
-                <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={dashboardData.dailyRevenue}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" tickFormatter={formatDate} />
-                    <YAxis />
-                    <Tooltip
-                      formatter={(value) =>
-                        new Intl.NumberFormat("ko-KR", {
-                          style: "currency",
-                          currency: "KRW",
-                        }).format(value)
-                      }
-                      labelFormatter={(label) => formatDate(label)}
-                    />
-                    <Legend />
-                    <Line
-                      type="monotone"
-                      dataKey="revenue"
-                      name="일별 매출"
-                      stroke="#8884d8"
-                      activeDot={{ r: 8 }}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              ) : (
-                <p>일별 매출 데이터가 없습니다.</p>
-              )}
-            </div>
-            <div className="revenue-chart">
-              <h2 className="card-title">일일 체크인 수</h2>
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={dashboardData.dailyCheckIns}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis
-                    dataKey="date"
-                    tickFormatter={(date) => format(new Date(date), "MM/dd")}
-                  />
-                  <YAxis />
-                  <Tooltip
-                    formatter={(value) => `${value}명`}
-                    labelFormatter={(label) =>
-                      format(new Date(label), "yyyy-MM-dd")
-                    }
-                  />
-                  <Legend />
-                  <Line
-                    type="monotone"
-                    dataKey="check_ins"
-                    name="체크인 수"
-                    stroke="#82ca9d"
-                    activeDot={{ r: 8 }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
+
+        <div className="right-column">
+          <div className="card revenue-chart">
+            <h2 className="card-title">일일 매출</h2>
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={dashboardData.dailyRevenue}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis
+                  dataKey="date"
+                  tickFormatter={(date) => format(new Date(date), "MM/dd")}
+                />
+                <YAxis />
+                <Tooltip
+                  formatter={(value) => `${value.toLocaleString()}원`}
+                  labelFormatter={(label) =>
+                    format(new Date(label), "yyyy-MM-dd")
+                  }
+                />
+                <Legend />
+                <Line
+                  type="monotone"
+                  dataKey="revenue"
+                  name="매출"
+                  stroke="#8884d8"
+                  activeDot={{ r: 8 }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
           </div>
         </div>
       </div>
+
+      {/* 3-4. 인기 숙소와 문의 섹션 */}
       <div className="dashboard-bottom">
-        <div className="card popular-accommodations">
-          <h2 className="card-title">인기 숙소 순위</h2>
-          {dashboardData.popularAccommodations &&
-          dashboardData.popularAccommodations.length > 0 ? (
-            <ul className="popular-list">
-              {dashboardData.popularAccommodations.map(
-                (accommodation, index) => (
-                  <li key={accommodation.id} className="popular-item">
-                    <span className="rank">{index + 1}</span>
-                    <span className="name">{accommodation.name}</span>
-                    <button
-                      className="manage-button"
-                      onClick={() =>
-                        handleManageAccommodation(accommodation.id)
-                      }
-                    >
-                      관리
-                    </button>
-                  </li>
-                )
-              )}
-            </ul>
-          ) : (
-            <p>인기 숙소 데이터가 없습니다.</p>
-          )}
+        <div className="left-column">
+          <div className="card popular-accommodations">
+            <h2 className="card-title">인기 숙소 순위</h2>
+            {dashboardData.popularAccommodations &&
+            dashboardData.popularAccommodations.length > 0 ? (
+              <ul className="popular-list">
+                {dashboardData.popularAccommodations.map(
+                  (accommodation, index) => (
+                    <li key={accommodation.id} className="popular-item">
+                      <span className="rank">{index + 1}</span>
+                      <span className="name">{accommodation.name}</span>
+                      <button
+                        className="manage-button"
+                        onClick={() =>
+                          handleManageAccommodation(accommodation.id)
+                        }
+                      >
+                        관리
+                      </button>
+                    </li>
+                  )
+                )}
+              </ul>
+            ) : (
+              <p>인기 숙소 데이터가 없습니다.</p>
+            )}
+          </div>
         </div>
+
+        <div className="right-column">
+          <div className="card recent-inquiries">
+            <h2 className="card-title">최근 문의</h2>
+            <ul className="inquiry-list">
+              {dashboardData.recentInquiries?.map((inquiry) => (
+                <li key={inquiry.id} className="inquiry-item">
+                  <div className="inquiry-header">
+                    <span className="inquiry-title">{inquiry.title}</span>
+                    <span className={`inquiry-status ${inquiry.status}`}>
+                      {inquiry.status === "pending" ? "답변대기" : "답변완료"}
+                    </span>
+                  </div>
+                  <div className="inquiry-content">{inquiry.content}</div>
+                  <div className="inquiry-info">
+                    <span className="inquiry-user">
+                      작성자: {inquiry.nickname}
+                    </span>
+                    <span className="inquiry-date">
+                      {formatDate(inquiry.created_at)}
+                    </span>
+                  </div>
+                  {inquiry.status === "pending" && (
+                    <button
+                      className="answer-button"
+                      onClick={() => handleAnswerInquiry(inquiry)}
+                    >
+                      답변하기
+                    </button>
+                  )}
+                  {inquiry.status === "answered" && (
+                    <div className="inquiry-response">
+                      <div className="response-content">{inquiry.response}</div>
+                      <div className="response-date">
+                        답변일: {formatDate(inquiry.response_date)}
+                      </div>
+                    </div>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      {/* 5-6. 최근 예약 섹션 (전체 너비) */}
+      <div className="dashboard-full">
+        <div className="card recent-bookings">
+          <h2 className="card-title">최근 예약</h2>
+          <ul className="booking-list">
+            {dashboardData.recentBookings.map((booking) => (
+              <li key={booking.id} className="booking-item">
+                <span className="booking-name">
+                  {booking.accommodation_name}
+                </span>
+                <span className="booking-date">
+                  {formatDate(booking.check_in_date)} ~{" "}
+                  {formatDate(booking.check_out_date)}
+                </span>
+                <span className="guest-name">예약자: {booking.nickname}</span>
+                <span className="guest-email">이메일: {booking.email}</span>
+                <span className="guest-phone">
+                  전화번호: {booking.phone_number || "미등록"}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+
+      {/* 7-8. 최근 리뷰 섹션 (전체 너비) */}
+      <div className="dashboard-full">
         <div className="card recent-reviews">
           <h2 className="card-title">최근 리뷰</h2>
           <ul className="review-list">
@@ -279,28 +375,9 @@ function Dashboard() {
             ))}
           </ul>
         </div>
-        <div className="card recent-bookings">
-          <h2 className="card-title">최근 예약</h2>
-          <ul className="booking-list">
-            {dashboardData.recentBookings.map((booking) => (
-              <li key={booking.id} className="booking-item">
-                <span className="booking-name">
-                  {booking.accommodation_name}
-                </span>
-                <span className="booking-date">
-                  {formatDate(booking.check_in_date)} ~{" "}
-                  {formatDate(booking.check_out_date)}
-                </span>
-                <span className="guest-name">예약자: {booking.nickname}</span>
-                <span className="guest-email">이메일: {booking.email}</span>
-                <span className="guest-phone">
-                  전화번호: {booking.phone_number || "미등록"}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
       </div>
+
+      {/* 모달들 */}
       {showDeleteModal && (
         <div className="modal">
           <div className="modal-content">
@@ -313,6 +390,34 @@ function Dashboard() {
             <button
               className="cancel-button"
               onClick={() => setShowDeleteModal(false)}
+            >
+              취소
+            </button>
+          </div>
+        </div>
+      )}
+
+      {showAnswerModal && (
+        <div className="modal">
+          <div className="modal-content">
+            <h2>문의 답변</h2>
+            <p>문의 내용: {selectedInquiry.content}</p>
+            <textarea
+              value={answerContent}
+              onChange={(e) => setAnswerContent(e.target.value)}
+              placeholder="답변을 입력하세요"
+              rows={4}
+            />
+            <button className="submit-button" onClick={handleSubmitAnswer}>
+              답변 등록
+            </button>
+            <button
+              className="cancel-button"
+              onClick={() => {
+                setShowAnswerModal(false);
+                setSelectedInquiry(null);
+                setAnswerContent("");
+              }}
             >
               취소
             </button>

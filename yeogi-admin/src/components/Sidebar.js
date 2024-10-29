@@ -1,12 +1,50 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import axios from "axios";
 import "./Sidebar.css";
+import defaultProfile from "../images/default-image.jpg";
 
 function Sidebar() {
+  const [adminInfo, setAdminInfo] = useState({
+    name: "",
+    email: "",
+    position: "",
+    profile_image: null,
+  });
+
+  useEffect(() => {
+    const fetchAdminInfo = async () => {
+      try {
+        const response = await axios.get("/api/admin/profile", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+        setAdminInfo(response.data);
+      } catch (error) {
+        console.error("관리자 정보 조회 실패:", error);
+      }
+    };
+
+    fetchAdminInfo();
+  }, []);
+
   return (
     <nav className="sidebar">
       <div className="sidebar-header">
-        <h2>여기어때 관리자</h2>
+        <div className="admin-profile">
+          <div className="profile-image">
+            <img
+              src={adminInfo.profile_image || defaultProfile}
+              alt="관리자 프로필"
+            />
+          </div>
+          <div className="profile-info">
+            <h3 className="admin-name">{adminInfo.name}</h3>
+            <p className="admin-email">{adminInfo.email}</p>
+            <span className="admin-position">{adminInfo.position}</span>
+          </div>
+        </div>
       </div>
       <ul className="sidebar-menu">
         <li>

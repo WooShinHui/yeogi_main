@@ -20,6 +20,8 @@ import ReservationCompletePage from "./ReservationCompletePage";
 import ReservationFailPage from "./pages/ReservationFailPage";
 import FavoritesPage from "./pages/FavoritesPage";
 import EditProfilePage from "./pages/EditProfilePage";
+import InquiryPage from "./pages/inquiryPage"; // 새로 추가
+
 function PrivateRoute({ children }) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -80,6 +82,15 @@ function App() {
           </PrivateRoute>
         }
       />
+      <Route
+        path="/inquiry"
+        element={
+          <PrivateRoute>
+            <InquiryPage />
+          </PrivateRoute>
+        }
+      />
+
       <Route path="/edit-profile" element={<EditProfilePage />} />
       <Route path="/search" element={<SearchPage />} />
       <Route

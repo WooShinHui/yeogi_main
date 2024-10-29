@@ -1,16 +1,27 @@
-import React from "react";
-import { Navigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-function ProtectedRoute({ children }) {
-  const token = localStorage.getItem("token");
-  console.log("Current token:", token); // 디버깅을 위한 로그
+const ProtectRoute = ({ children }) => {
+  const navigate = useNavigate();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  if (!token) {
-    console.log("No token found, redirecting to login"); // 디버깅을 위한 로그
-    return <Navigate to="/admin/login" replace />;
-  }
+  useEffect(() => {
+    const checkAuth = () => {
+      const token = localStorage.getItem("adminToken");
+      console.log("Current token:", token);
 
-  return children;
-}
+      if (!token) {
+        console.log("No token found, redirecting to login");
+        navigate("/admin/login");
+      } else {
+        setIsAuthenticated(true);
+      }
+    };
 
-export default ProtectedRoute;
+    checkAuth();
+  }, [navigate]);
+
+  return isAuthenticated ? children : null;
+};
+
+export default ProtectRoute;

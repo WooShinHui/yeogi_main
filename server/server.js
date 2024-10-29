@@ -16,7 +16,7 @@ const PORT = process.env.PORT || 3001;
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
-
+const crypto = require("crypto");
 // 환경 변수 설정
 const DB_CONFIG = {
   host: process.env.DB_HOST || "localhost",
@@ -52,9 +52,16 @@ const EMAIL_CONFIG = {
   },
   secure: false,
 };
-
+const transporter = nodemailer.createTransport(EMAIL_CONFIG);
 let pool;
+function generateVerificationCode() {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+}
 
+// 관리자 코드 생성 함수
+function generateAdminCode() {
+  return Math.random().toString(36).substring(2, 10).toUpperCase();
+}
 // 데이터베이스 연결 풀 생성 함수
 function createPool() {
   pool = mysql.createPool({
@@ -1226,7 +1233,82 @@ app.listen(PORT, () => {
 });
 //------------------------------------------------------------------------관리자 페이지---------------------------------------------------------------
 // ... 기존 코드 ...
+// 관리자 프로필 정보 조회
+app.get("/api/admin/profile", authenticateToken, async (req, res) => {
+  if (!req.user.isAdmin) {
+    return res.status(403).json({ error: "관리자 권한이 없습니다." });
+  }
 
+  try {
+    const [adminInfo] = await queryDatabase(
+      "SELECT id, email, name, phone_number, position, profile_image FROM admin_users WHERE id = ?",
+      [req.user.id]
+    );
+
+    if (!adminInfo) {
+      return res.status(404).json({ error: "관리자 정보를 찾을 수 없습니다." });
+    }
+
+    res.json(adminInfo);
+  } catch (error) {
+    console.error("관리자 프로필 조회 오류:", error);
+    res.status(500).json({ error: "서버 오류가 발생했습니다." });
+  }
+});
+
+// 관리자 프로필 이미지 업데이트
+app.put(
+  "/api/admin/profile/image",
+  authenticateToken,
+  upload.single("profile_image"),
+  async (req, res) => {
+    if (!req.user.isAdmin) {
+      return res.status(403).json({ error: "관리자 권한이 없습니다." });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({ error: "이미지 파일이 없습니다." });
+    }
+
+    const imageUrl = `/uploads/${req.file.filename}`;
+
+    try {
+      // 기존 프로필 이미지가 있다면 삭제
+      const [admin] = await queryDatabase(
+        "SELECT profile_image FROM admin_users WHERE id = ?",
+        [req.user.id]
+      );
+
+      if (
+        admin.profile_image &&
+        !admin.profile_image.includes("default-profile")
+      ) {
+        const oldImagePath = path.join(
+          __dirname,
+          "public",
+          admin.profile_image
+        );
+        fs.unlink(oldImagePath, (err) => {
+          if (err) console.error("기존 이미지 삭제 실패:", err);
+        });
+      }
+
+      // 데이터베이스 업데이트
+      await queryDatabase(
+        "UPDATE admin_users SET profile_image = ? WHERE id = ?",
+        [imageUrl, req.user.id]
+      );
+
+      res.json({
+        message: "프로필 이미지가 업데이트되었습니다.",
+        profile_image: imageUrl,
+      });
+    } catch (error) {
+      console.error("프로필 이미지 업데이트 실패:", error);
+      res.status(500).json({ error: "서버 오류가 발생했습니다." });
+    }
+  }
+);
 app.delete("/api/admin/reviews/:id", authenticateToken, async (req, res) => {
   try {
     const reviewId = req.params.id;
@@ -1254,47 +1336,87 @@ app.delete("/api/admin/reviews/:id", authenticateToken, async (req, res) => {
     res.status(500).json({ message: "서버 오류가 발생했습니다." });
   }
 });
+// 문의 테이블 생성 쿼리
+const createInquiriesTableQuery = `
+CREATE TABLE IF NOT EXISTS inquiries (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  title VARCHAR(255) NOT NULL,
+  content TEXT NOT NULL,
+  status ENUM('pending', 'in_progress', 'completed') DEFAULT 'pending',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES yeogi_main(id)
+)`;
 
+// 문의 등록 API
+app.post("/api/inquiries", authenticateToken, async (req, res) => {
+  const { title, content } = req.body;
+  const userId = req.user.id;
+
+  try {
+    await queryDatabase(
+      "INSERT INTO inquiries (user_id, title, content) VALUES (?, ?, ?)",
+      [userId, title, content]
+    );
+    res.status(201).json({ message: "문의가 등록되었습니다." });
+  } catch (error) {
+    console.error("문의 등록 오류:", error);
+    res.status(500).json({ error: "서버 오류가 발생했습니다." });
+  }
+});
+
+// 관리자용 문의 목록 조회 API
+app.get("/api/admin/inquiries", authenticateToken, async (req, res) => {
+  if (!req.user.isAdmin) {
+    return res.status(403).json({ error: "관리자 권한이 없습니다." });
+  }
+
+  try {
+    const inquiries = await queryDatabase(
+      `SELECT i.*, u.email, u.nickname 
+       FROM inquiries i 
+       JOIN yeogi_main u ON i.user_id = u.id 
+       ORDER BY i.created_at DESC`
+    );
+    res.json(inquiries);
+  } catch (error) {
+    console.error("문의 목록 조회 오류:", error);
+    res.status(500).json({ error: "서버 오류가 발생했습니다." });
+  }
+});
 // ... 나머지 코드 ...
 
 app.post("/api/admin/login", async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password, adminCode } = req.body;
+
   try {
+    // 이메일과 관리자 코드로 관리자 정보 조회
     const [admin] = await queryDatabase(
-      "SELECT * FROM admin_users WHERE email = ?",
-      [email]
+      "SELECT * FROM admin_users WHERE email = ? AND admin_code = ?",
+      [email, adminCode]
     );
 
     if (!admin) {
-      return res.status(401).json({ error: "관리자 계정이 아닙니다." });
+      return res
+        .status(401)
+        .json({ error: "이메일 또는 관리자 코드가 올바르지 않습니다." });
     }
 
-    const isMatch = await bcrypt.compare(password, admin.password);
-    if (!isMatch) {
-      return res.status(401).json({ error: "비밀번호가 일치하지 않습니다." });
+    // 비밀번호 확인
+    const isPasswordValid = await bcrypt.compare(password, admin.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({ error: "비밀번호가 올바르지 않습니다." });
     }
 
-    // token 생성을 여기로 이동
+    // JWT 토큰 생성
     const token = jwt.sign(
-      { id: admin.id, email: admin.email, name: admin.name, isAdmin: true },
+      { id: admin.id, email: admin.email, isAdmin: true },
       process.env.JWT_SECRET,
       { expiresIn: "1d" }
     );
 
-    // 숙소 등록 여부 확인
-    const [accommodations] = await queryDatabase(
-      "SELECT COUNT(*) as count FROM accommodations WHERE admin_id = ?",
-      [admin.id]
-    );
-
-    const hasAccommodations = accommodations.count > 0;
-
-    res.json({
-      token,
-      adminId: admin.id,
-      name: admin.name,
-      hasAccommodations,
-    });
+    res.json({ token, adminId: admin.id, name: admin.name });
   } catch (error) {
     console.error("관리자 로그인 오류:", error);
     res.status(500).json({ error: "서버 오류가 발생했습니다." });
@@ -1302,25 +1424,21 @@ app.post("/api/admin/login", async (req, res) => {
 });
 app.get("/api/admin/dashboard", authenticateToken, async (req, res) => {
   try {
-    // 체크인/체크아웃 데이터, 총 예약 수, 이번 달 매출, 평균 숙박 일수 조회
     const [dashboardStats] = await queryDatabase(
       `
-  SELECT 
-    SUM(CASE WHEN DATE(b.check_in_date) = CURDATE() THEN 1 ELSE 0 END) as today_check_ins,
-    SUM(CASE WHEN DATE(b.check_out_date) = CURDATE() THEN 1 ELSE 0 END) as today_check_outs,
-    COUNT(*) as total_bookings,
-    SUM(CASE WHEN MONTH(b.check_in_date) = MONTH(CURDATE()) AND YEAR(b.check_in_date) = YEAR(CURDATE()) THEN b.total_price ELSE 0 END) as monthly_revenue,
-    AVG(DATEDIFF(b.check_out_date, b.check_in_date)) as average_stay_duration
-  FROM bookings b
-  JOIN accommodations a ON b.accommodation_id = a.id
-  WHERE a.admin_id = ?
-  `,
+      SELECT 
+        SUM(CASE WHEN DATE(b.check_in_date) = CURDATE() THEN 1 ELSE 0 END) as today_check_ins,
+        SUM(CASE WHEN DATE(b.check_out_date) = CURDATE() THEN 1 ELSE 0 END) as today_check_outs,
+        COUNT(*) as total_bookings,
+        SUM(CASE WHEN MONTH(b.check_in_date) = MONTH(CURDATE()) AND YEAR(b.check_in_date) = YEAR(CURDATE()) THEN b.total_price ELSE 0 END) as monthly_revenue,
+        AVG(DATEDIFF(b.check_out_date, b.check_in_date)) as average_stay_duration
+      FROM bookings b
+      JOIN accommodations a ON b.accommodation_id = a.id
+      WHERE a.admin_id = ?
+      `,
       [req.user.id]
     );
 
-    console.log("Dashboard stats:", dashboardStats);
-
-    // 최근 예약 데이터 조회 (이메일과 닉네임 포함)
     const recentBookings = await queryDatabase(
       `
       SELECT b.id, a.name as accommodation_name, b.check_in_date, b.check_out_date,
@@ -1335,41 +1453,34 @@ app.get("/api/admin/dashboard", authenticateToken, async (req, res) => {
       [req.user.id]
     );
 
-    console.log("Recent bookings:", recentBookings);
-
-    // 이번 달 일별 매출 데이터 조회
     const dailyRevenue = await queryDatabase(
       `
-  SELECT DATE(b.check_in_date) as date, 
-         SUM(b.total_price) as revenue
-  FROM bookings b
-  JOIN accommodations a ON b.accommodation_id = a.id
-  WHERE a.admin_id = ?
-    AND YEAR(b.check_in_date) = YEAR(CURDATE())
-    AND MONTH(b.check_in_date) = MONTH(CURDATE())
-  GROUP BY DATE(b.check_in_date)
-  ORDER BY DATE(b.check_in_date)
-  `,
+      SELECT DATE(b.check_in_date) as date, 
+             SUM(b.total_price) as revenue
+      FROM bookings b
+      JOIN accommodations a ON b.accommodation_id = a.id
+      WHERE a.admin_id = ?
+        AND YEAR(b.check_in_date) = YEAR(CURDATE())
+        AND MONTH(b.check_in_date) = MONTH(CURDATE())
+      GROUP BY DATE(b.check_in_date)
+      ORDER BY DATE(b.check_in_date)
+      `,
       [req.user.id]
     );
 
-    console.log("Daily revenue data:", dailyRevenue);
-
-    // 인기 숙소 데이터 조회 추가
     const popularAccommodations = await queryDatabase(
       `
-  SELECT a.id, a.name, COUNT(l.id) as likes_count
-  FROM accommodations a
-  LEFT JOIN likes l ON a.id = l.accommodation_id
-  WHERE a.admin_id = ?
-  GROUP BY a.id
-  ORDER BY likes_count DESC
-  LIMIT 5
-  `,
+      SELECT a.id, a.name, COUNT(l.id) as likes_count
+      FROM accommodations a
+      LEFT JOIN likes l ON a.id = l.accommodation_id
+      WHERE a.admin_id = ?
+      GROUP BY a.id
+      ORDER BY likes_count DESC
+      LIMIT 5
+      `,
       [req.user.id]
     );
 
-    // 최근 리뷰 조회
     const recentReviews = await queryDatabase(
       `
       SELECT r.*, a.name as accommodation_name, u.nickname
@@ -1382,6 +1493,7 @@ app.get("/api/admin/dashboard", authenticateToken, async (req, res) => {
     `,
       [req.user.id]
     );
+
     const dailyCheckIns = await queryDatabase(
       `
       SELECT DATE(b.check_in_date) as date, 
@@ -1397,21 +1509,38 @@ app.get("/api/admin/dashboard", authenticateToken, async (req, res) => {
       [req.user.id]
     );
 
-    console.log("Daily check-ins data:", dailyCheckIns);
-    // 평균 평점 조회
     const [averageRating] = await queryDatabase(
       `
       SELECT AVG(rating) as average_rating
       FROM reviews r
       JOIN accommodations a ON r.accommodation_id = a.id
       WHERE a.admin_id = ?
-    `,
+      `,
       [req.user.id]
     );
-
-    console.log("Popular accommodations:", popularAccommodations);
-
-    // 결과 합치기
+    // dailyCheckOuts 쿼리 추가
+    const dailyCheckOuts = await queryDatabase(
+      `
+  SELECT DATE(b.check_out_date) as date, 
+         COUNT(*) as check_outs
+  FROM bookings b
+  JOIN accommodations a ON b.accommodation_id = a.id
+  WHERE a.admin_id = ?
+    AND YEAR(b.check_out_date) = YEAR(CURDATE())
+    AND MONTH(b.check_out_date) = MONTH(CURDATE())
+  GROUP BY DATE(b.check_out_date)
+  ORDER BY DATE(b.check_out_date)
+  `,
+      [req.user.id]
+    );
+    const recentInquiries = await queryDatabase(
+      `SELECT i.*, u.email, u.nickname 
+       FROM inquiries i 
+       JOIN yeogi_main u ON i.user_id = u.id 
+       ORDER BY i.created_at DESC 
+       LIMIT 5`
+    );
+    // dashboardData에 dailyCheckOuts 추가
     const dashboardData = {
       today_check_ins: Number(dashboardStats.today_check_ins) || 0,
       today_check_outs: Number(dashboardStats.today_check_outs) || 0,
@@ -1420,13 +1549,13 @@ app.get("/api/admin/dashboard", authenticateToken, async (req, res) => {
       average_stay_duration: Number(dashboardStats.average_stay_duration) || 0,
       recentBookings,
       dailyRevenue,
-      dailyCheckIns, // 새로 추가된 일일 체크인 데이터
+      dailyCheckIns,
+      dailyCheckOuts,
       popularAccommodations,
       recentReviews,
       averageRating: Number(averageRating.average_rating) || 0,
+      recentInquiries, // 최근 문의 데이터 추가
     };
-
-    console.log("Full dashboard data:", dashboardData);
 
     res.json(dashboardData);
   } catch (error) {
@@ -1539,7 +1668,7 @@ app.delete("/api/admin/users/:id", authenticateToken, async (req, res) => {
   }
 });
 app.post("/api/admin/register", async (req, res) => {
-  const { email, password, name } = req.body;
+  const { email, password, name, phoneNumber, position } = req.body;
 
   try {
     // 이메일 중복 체크
@@ -1552,24 +1681,233 @@ app.post("/api/admin/register", async (req, res) => {
       return res.status(400).json({ error: "이미 존재하는 이메일입니다." });
     }
 
-    // 비밀번호 해싱
+    // 비밀번호 해시화
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // 관리자 계정 생성
-    const result = await queryDatabase(
-      "INSERT INTO admin_users (email, password, name) VALUES (?, ?, ?)",
-      [email, hashedPassword, name]
+    // 인증 코드 생성 및 저장
+    const verificationCode = generateVerificationCode();
+    await queryDatabase(
+      "INSERT INTO admin_users (email, password, name, phone_number, position, verification_code) VALUES (?, ?, ?, ?, ?, ?)",
+      [email, hashedPassword, name, phoneNumber, position, verificationCode]
     );
 
-    res.status(201).json({
-      message: "관리자 계정이 생성되었습니다.",
-      adminId: result.insertId,
+    // 인증 코드 이메일 발송
+    await transporter.sendMail({
+      from: EMAIL_CONFIG.auth.user,
+      to: email,
+      subject: "관리자 계정 인증 코드",
+      text: `관리자 계정 인증 코드: ${verificationCode}`,
     });
+
+    res.json({ message: "인증 코드가 이메일로 전송되었습니다." });
   } catch (error) {
     console.error("관리자 회원가입 오류:", error);
     res.status(500).json({ error: "서버 오류가 발생했습니다." });
   }
 });
+// 임시 저장소 (실제 구현에서는 데이터베이스를 사용해야 합니다)
+const pendingRegistrations = new Map();
+
+// 인증 및 등록 처리
+// 관리자 회원가입 인증 코드 요청
+app.post("/api/admin/request-verification", async (req, res) => {
+  const { email, password, name, phoneNumber, position } = req.body;
+
+  try {
+    // 이메일 중복 체크
+    const [existingAdmin] = await queryDatabase(
+      "SELECT * FROM admin_users WHERE email = ?",
+      [email]
+    );
+
+    if (existingAdmin) {
+      return res.status(400).json({ error: "이미 존재하는 이메일입니다." });
+    }
+
+    // 인증 코드 생성
+    const verificationCode = Math.floor(
+      100000 + Math.random() * 900000
+    ).toString();
+
+    // 비밀번호 해시화
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // 임시 저장 (실제 구현에서는 데이터베이스를 사용해야 합니다)
+    pendingAdminRegistrations.set(email, {
+      email,
+      hashedPassword,
+      name,
+      phoneNumber,
+      position,
+      verificationCode,
+      expiresAt: Date.now() + 10 * 60 * 1000, // 10분 후 만료
+    });
+
+    // 이메일로 인증 코드 전송
+    await sendAdminVerificationEmail(email, verificationCode);
+
+    res.json({ message: "인증 코드가 이메일로 전송되었습니다." });
+  } catch (error) {
+    console.error("관리자 인증 코드 요청 오류:", error);
+    res.status(500).json({ error: "서버 오류가 발생했습니다." });
+  }
+});
+
+// 관리자 회원가입 인증 및 등록
+// 상수로 총괄 관리자 이메일 정의
+const SUPER_ADMIN_EMAIL = "rdrd1564@naver.com";
+
+// 관리자 회원가입 인증 및 등록
+app.post("/api/admin/verify-and-register", async (req, res) => {
+  const { email, verificationCode } = req.body;
+
+  try {
+    const pendingRegistration = pendingAdminRegistrations.get(email);
+
+    if (
+      !pendingRegistration ||
+      pendingRegistration.verificationCode !== verificationCode
+    ) {
+      return res.status(400).json({ error: "유효하지 않은 인증 코드입니다." });
+    }
+
+    if (Date.now() > pendingRegistration.expiresAt) {
+      pendingAdminRegistrations.delete(email);
+      return res.status(400).json({ error: "인증 코드가 만료되었습니다." });
+    }
+
+    // 관리자 코드 생성
+    const adminCode = Math.random().toString(36).substring(2, 10).toUpperCase();
+
+    // 데이터베이스에 관리자 정보 저장
+    await queryDatabase(
+      "INSERT INTO admin_users (email, password, name, phone_number, position, admin_code) VALUES (?, ?, ?, ?, ?, ?)",
+      [
+        pendingRegistration.email,
+        pendingRegistration.hashedPassword,
+        pendingRegistration.name,
+        pendingRegistration.phoneNumber,
+        pendingRegistration.position,
+        adminCode,
+      ]
+    );
+
+    // 임시 저장소에서 정보 삭제
+    pendingAdminRegistrations.delete(email);
+
+    // 관리자 코드를 총괄 관리자 이메일로 전송
+    await sendAdminCodeEmail(
+      SUPER_ADMIN_EMAIL,
+      adminCode,
+      pendingRegistration.email
+    );
+
+    res.json({
+      message:
+        "관리자 등록이 완료되었습니다. 관리자 코드가 총괄 관리자에게 전송되었습니다.",
+    });
+  } catch (error) {
+    console.error("관리자 등록 오류:", error);
+    res.status(500).json({ error: "서버 오류가 발생했습니다." });
+  }
+});
+
+// 관리자 코드 이메일 전송 함수 수정
+const sendAdminCodeEmail = async (
+  superAdminEmail,
+  adminCode,
+  newAdminEmail
+) => {
+  const mailOptions = {
+    from: EMAIL_CONFIG.auth.user,
+    to: superAdminEmail,
+    subject: "새 관리자 코드",
+    text: `새로운 관리자(${newAdminEmail})의 관리자 코드입니다: ${adminCode}`,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log(
+      `Admin code for ${newAdminEmail} sent to super admin ${superAdminEmail}: ${adminCode}`
+    );
+  } catch (error) {
+    console.error("관리자 코드 이메일 전송 오류:", error);
+    throw new Error("관리자 코드 이메일 전송에 실패했습니다.");
+  }
+};
+
+// 관리자 인증 코드 이메일 전송 함수
+const sendAdminVerificationEmail = async (email, code) => {
+  const mailOptions = {
+    from: EMAIL_CONFIG.auth.user,
+    to: email,
+    subject: "관리자 회원가입 인증 코드",
+    text: `관리자 회원가입을 위한 인증 코드입니다: ${code}`,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log(`Admin verification code sent to ${email}: ${code}`);
+  } catch (error) {
+    console.error("관리자 인증 코드 이메일 전송 오류:", error);
+    throw new Error("관리자 인증 코드 이메일 전송에 실패했습니다.");
+  }
+};
+
+// 임시 저장소 (실제 구현에서는 데이터베이스를 사용해야 합니다)
+const pendingAdminRegistrations = new Map();
+
+// 관리자 인증 코드 확인
+app.post("/api/admin/verify-and-register", async (req, res) => {
+  const { email, verificationCode } = req.body;
+
+  try {
+    const pendingRegistration = pendingAdminRegistrations.get(email);
+
+    if (
+      !pendingRegistration ||
+      pendingRegistration.verificationCode !== verificationCode
+    ) {
+      return res.status(400).json({ error: "유효하지 않은 인증 코드입니다." });
+    }
+
+    if (Date.now() > pendingRegistration.expiresAt) {
+      pendingAdminRegistrations.delete(email);
+      return res.status(400).json({ error: "인증 코드가 만료되었습니다." });
+    }
+
+    // 관리자 코드 생성
+    const adminCode = Math.random().toString(36).substring(2, 10).toUpperCase();
+
+    // 데이터베이스에 관리자 정보 저장
+    await queryDatabase(
+      "INSERT INTO admin_users (email, password, name, phone_number, position, admin_code) VALUES (?, ?, ?, ?, ?, ?)",
+      [
+        pendingRegistration.email,
+        pendingRegistration.hashedPassword,
+        pendingRegistration.name,
+        pendingRegistration.phoneNumber,
+        pendingRegistration.position,
+        adminCode,
+      ]
+    );
+
+    // 임시 저장소에서 정보 삭제
+    pendingAdminRegistrations.delete(email);
+
+    // 관리자 코드를 이메일로 전송
+    await sendAdminCodeEmail(email, adminCode);
+
+    res.json({
+      message:
+        "관리자 등록이 완료되었습니다. 관리자 코드가 이메일로 전송되었습니다.",
+    });
+  } catch (error) {
+    console.error("관리자 등록 오류:", error);
+    res.status(500).json({ error: "서버 오류가 발생했습니다." });
+  }
+});
+
 app.get(
   "/api/admin/check-accommodation",
   authenticateToken,
