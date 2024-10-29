@@ -17,6 +17,7 @@ import ProtectedRoute from "./components/ProtectRoute";
 import "./App.css";
 import ReviewManagement from "./components/ReviewManagement";
 import UserManagement from "./components/UserManagement";
+import InquiryManagement from "./components/InquiryManagement";
 function App() {
   return (
     <Router>
@@ -72,6 +73,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <UserManagement />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/inquiry"
+              element={
+                <ProtectedRoute>
+                  <InquiryManagement />
                 </ProtectedRoute>
               }
             />

@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import axios from "axios";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "../axiosConfig";
 import "./Sidebar.css";
 import defaultProfile from "../images/default-image.jpg";
 
 function Sidebar() {
+  const navigate = useNavigate();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [adminInfo, setAdminInfo] = useState({
     name: "",
     email: "",
@@ -13,21 +15,50 @@ function Sidebar() {
   });
 
   useEffect(() => {
-    const fetchAdminInfo = async () => {
+    const checkLoginStatus = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setIsLoggedIn(false);
+        return;
+      }
+
       try {
         const response = await axios.get("/api/admin/profile", {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            Authorization: `Bearer ${token}`,
           },
         });
         setAdminInfo(response.data);
+        setIsLoggedIn(true);
       } catch (error) {
         console.error("관리자 정보 조회 실패:", error);
+        setIsLoggedIn(false);
+        localStorage.removeItem("token");
+        localStorage.removeItem("adminId");
+        navigate("/admin/login");
       }
     };
 
-    fetchAdminInfo();
-  }, []);
+    checkLoginStatus();
+  }, [navigate]);
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("adminId");
+    setIsLoggedIn(false);
+    setAdminInfo({
+      name: "",
+      email: "",
+      position: "",
+      profile_image: null,
+    });
+    navigate("/admin/login");
+  };
+
+  // 로그인 상태가 아니면 빈 컴포넌트 반환
+  if (!isLoggedIn) {
+    return null;
+  }
 
   return (
     <nav className="sidebar">
@@ -65,7 +96,18 @@ function Sidebar() {
         <li>
           <Link to="/admin/users">회원 관리</Link>
         </li>
+        <li>
+          <Link to="/admin/inquiry">문의 관리</Link>
+        </li>
       </ul>
+      {isLoggedIn && (
+        <div className="sidebar-footer">
+          <hr className="divider" />
+          <button className="logout-button" onClick={handleLogout}>
+            로그아웃
+          </button>
+        </div>
+      )}
     </nav>
   );
 }

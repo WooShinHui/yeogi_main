@@ -15,7 +15,6 @@ const AdminLogin = () => {
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -24,9 +23,14 @@ const AdminLogin = () => {
       console.log("Login response:", response.data);
 
       if (response.data.token) {
-        localStorage.setItem("adminToken", response.data.token);
+        localStorage.setItem("token", response.data.token); // adminToken -> token으로 변경
         localStorage.setItem("adminId", response.data.adminId);
-        console.log("Token stored:", localStorage.getItem("adminToken"));
+        console.log("Token stored:", localStorage.getItem("token"));
+
+        // axios 기본 헤더 설정
+        axios.defaults.headers.common[
+          "Authorization"
+        ] = `Bearer ${response.data.token}`;
 
         navigate("/admin/dashboard");
       } else {

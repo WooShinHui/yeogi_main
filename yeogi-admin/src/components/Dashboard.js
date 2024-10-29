@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { format, parseISO } from "date-fns";
+import { FaBell, FaEnvelope, FaTimes } from "react-icons/fa";
 import {
   LineChart,
   Line,
@@ -11,6 +12,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
+
 import "./Dashboard.css";
 import { useNavigate } from "react-router-dom";
 
@@ -25,20 +27,64 @@ function Dashboard() {
     dailyRevenue: [],
     dailyCheckIns: [],
     dailyCheckOuts: [],
-    today_bookings: 0, // 이 부분 추가
+    today_bookings: 0,
     popularAccommodations: [],
     recentReviews: [],
     recentInquiries: [],
     averageRating: 0,
+    adminNotes: [],
   });
 
   const navigate = useNavigate();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedReview, setSelectedReview] = useState(null);
-  const [activeTab, setActiveTab] = useState("bookings");
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [showNotes, setShowNotes] = useState(false);
   const [showAnswerModal, setShowAnswerModal] = useState(false);
   const [selectedInquiry, setSelectedInquiry] = useState(null);
   const [answerContent, setAnswerContent] = useState("");
+  const [newNote, setNewNote] = useState("");
+
+  const fetchDashboardData = async () => {
+    try {
+      const response = await axios.get("/api/admin/dashboard", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      const notesResponse = await axios.get("/api/admin/notes", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      console.log("메모 데이터:", notesResponse.data); // 여기에 콘솔 추가
+      setDashboardData({
+        ...response.data,
+        adminNotes: notesResponse.data,
+      });
+    } catch (error) {
+      console.error("대시보드 데이터 조회 실패:", error);
+    }
+  };
+
+  const handleSaveNote = async () => {
+    try {
+      await axios.post(
+        "/api/admin/notes",
+        { message: newNote },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      setNewNote("");
+      fetchDashboardData();
+    } catch (error) {
+      console.error("메모 저장 실패:", error);
+      alert("메모 저장에 실패했습니다. 다시 시도해주세요.");
+    }
+  };
 
   const handleManageReview = (review) => {
     setSelectedReview(review);
@@ -61,14 +107,7 @@ function Dashboard() {
           },
         }
       );
-      // 성공 시 대시보드 데이터 새로고침
-      const dashboardResponse = await axios.get("/api/admin/dashboard", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-
-      setDashboardData(dashboardResponse.data);
+      fetchDashboardData();
       setShowAnswerModal(false);
       setSelectedInquiry(null);
       setAnswerContent("");
@@ -84,12 +123,7 @@ function Dashboard() {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
 
-      const dashboardResponse = await axios.get("/api/admin/dashboard", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-      setDashboardData(dashboardResponse.data);
+      fetchDashboardData();
       setShowDeleteModal(false);
       setSelectedReview(null);
     } catch (error) {
@@ -123,27 +157,24 @@ function Dashboard() {
   };
 
   useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        const response = await axios.get("/api/admin/dashboard", {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        });
-        console.log("Received dashboard data:", response.data); // 로그 추가
-        setDashboardData(response.data);
-      } catch (error) {
-        console.error("대시보드 데이터 조회 실패:", error);
-      }
-    };
-
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/admin/login");
+      return;
+    }
     fetchDashboardData();
-  }, []);
+  }, [navigate]);
 
   const formatDate = (dateString) => {
     return format(parseISO(dateString), "yyyy-MM-dd");
   };
-
+  // dailyRevenue 데이터로부터 이번 달 총 매출 계산하는 함수 추가
+  const calculateMonthlyTotal = (dailyRevenue) => {
+    const currentMonth = new Date().getMonth();
+    return dailyRevenue
+      .filter((item) => new Date(item.date).getMonth() === currentMonth)
+      .reduce((total, item) => total + item.revenue, 0);
+  };
   const processCheckInOutData = () => {
     const combinedData = {};
 
@@ -174,7 +205,100 @@ function Dashboard() {
 
   return (
     <div className="dashboard">
-      <h1 className="dashboard-title">관리자 대시보드</h1>
+      <div className="dashboard-header">
+        <h1 className="dashboard-title">관리자 대시보드</h1>
+
+        <div className="icon-container">
+          <div
+            className="icon"
+            onClick={() => setShowNotifications(!showNotifications)}
+          >
+            <FaBell />
+            <span className="badge">
+              {dashboardData.recentInquiries?.filter(
+                (inquiry) => inquiry.status === "pending"
+              ).length || 0}
+            </span>
+          </div>
+
+          <div className="icon" onClick={() => setShowNotes(!showNotes)}>
+            <FaEnvelope />
+            <span className="badge">
+              {dashboardData.adminNotes?.length || 0}
+            </span>
+          </div>
+        </div>
+
+        {showNotifications && (
+          <div className="notification-toast">
+            <div className="toast-header">
+              <h2>알림사항</h2>
+              <FaTimes
+                className="close-icon"
+                onClick={() => setShowNotifications(false)}
+              />
+            </div>
+            <ul className="toast-list">
+              <li>
+                <strong>답변 대기:</strong>{" "}
+                {dashboardData.recentInquiries?.filter(
+                  (inquiry) => inquiry.status === "pending"
+                ).length || 0}
+              </li>
+              <li>
+                <strong>최근 리뷰:</strong> {dashboardData.recentReviews.length}
+              </li>
+              <li>
+                <strong>오늘의 체크인:</strong> {dashboardData.today_check_ins}
+              </li>
+              <li>
+                <strong>오늘의 체크아웃:</strong>{" "}
+                {dashboardData.today_check_outs}
+              </li>
+            </ul>
+          </div>
+        )}
+
+        {showNotes && (
+          <div className="memo-container">
+            <div className="memo-header">
+              <h2>관리자 메모</h2>
+              <FaTimes
+                className="close-icon"
+                onClick={() => setShowNotes(false)}
+              />
+            </div>
+            <div className="memo-board">
+              {dashboardData.adminNotes.map((note, index) => (
+                <div key={index} className="memo-note">
+                  <div className="memo-content">{note.message}</div>
+                  <div className="memo-footer">
+                    <span className="memo-author">
+                      {note.author_name} | {note.author_position}
+                    </span>
+                    {note.created_at && (
+                      <span className="memo-time">
+                        {format(new Date(note.created_at), "HH:mm")}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="memo-input-container">
+              <textarea
+                className="memo-input"
+                placeholder="새로운 메모를 입력하세요..."
+                value={newNote}
+                onChange={(e) => setNewNote(e.target.value)}
+              />
+              <button className="memo-submit" onClick={handleSaveNote}>
+                메모 추가
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
       <div className="today-summary">
         <div className="summary-item">
           <div className="summary-title">오늘의 체크인</div>
@@ -199,11 +323,10 @@ function Dashboard() {
           </div>
         </div>
       </div>
-      {/* 1-2. 상단 그래프 섹션 */}
       <div className="dashboard-stats">
         <div className="left-column">
-          <div className="card check-in-out-graph">
-            <h2 className="card-title">체크인/체크아웃 현황</h2>
+          <div className="card checkin-checkout-chart">
+            <h2 className="card-title">체크인/체크아웃</h2>
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={processCheckInOutData()}>
                 <CartesianGrid strokeDasharray="3 3" />
@@ -213,7 +336,6 @@ function Dashboard() {
                 />
                 <YAxis />
                 <Tooltip
-                  formatter={(value) => `${value}명`}
                   labelFormatter={(label) =>
                     format(new Date(label), "yyyy-MM-dd")
                   }
@@ -221,23 +343,18 @@ function Dashboard() {
                 <Legend />
                 <Line
                   type="monotone"
-                  dataKey="check_outs"
-                  name="체크아웃"
-                  stroke="#ff7f7f"
-                  strokeWidth={1.5}
-                  strokeOpacity={0.5}
-                  dot={{ strokeWidth: 1 }}
-                  activeDot={{ r: 6 }}
+                  dataKey="check_ins"
+                  name="체크인"
                   zIndex={1}
+                  stroke="#20C030"
                 />
                 <Line
                   type="monotone"
-                  dataKey="check_ins"
-                  name="체크인"
-                  stroke="#82ca9d"
-                  strokeWidth={2}
-                  activeDot={{ r: 8 }}
-                  zIndex={2}
+                  dataKey="check_outs"
+                  name="체크아웃"
+                  zIndex={0}
+                  opacity={0.5}
+                  stroke="#E8403A"
                 />
               </LineChart>
             </ResponsiveContainer>
@@ -246,7 +363,18 @@ function Dashboard() {
 
         <div className="right-column">
           <div className="card revenue-chart">
-            <h2 className="card-title">일일 매출</h2>
+            <div className="revenue-header">
+              <h2 className="card-title">일일 매출</h2>
+              <div className="monthly-total">
+                이번 달 매출:{" "}
+                <span className="amount">
+                  {calculateMonthlyTotal(
+                    dashboardData.dailyRevenue
+                  ).toLocaleString()}
+                </span>
+                원
+              </div>
+            </div>
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={dashboardData.dailyRevenue}>
                 <CartesianGrid strokeDasharray="3 3" />
@@ -274,8 +402,6 @@ function Dashboard() {
           </div>
         </div>
       </div>
-
-      {/* 3-4. 인기 숙소와 문의 섹션 */}
       <div className="dashboard-bottom">
         <div className="left-column">
           <div className="card popular-accommodations">
@@ -335,8 +461,6 @@ function Dashboard() {
           </div>
         </div>
       </div>
-
-      {/* 5-6. 최근 예약 섹션 (전체 너비) */}
       <div className="dashboard-full">
         <div className="card recent-bookings">
           <h2 className="card-title">최근 예약</h2>
@@ -360,8 +484,6 @@ function Dashboard() {
           </ul>
         </div>
       </div>
-
-      {/* 7-8. 최근 리뷰 섹션 (전체 너비) */}
       <div className="dashboard-full">
         <div className="card recent-reviews">
           <h2 className="card-title">최근 리뷰</h2>
@@ -390,32 +512,56 @@ function Dashboard() {
           </ul>
         </div>
       </div>
-
-      {/* 모달들 */}
       {showDeleteModal && (
-        <div className="modal">
+        <div className="modal-overlay">
           <div className="modal-content">
-            <h2>리뷰 삭제</h2>
+            <div className="modal-header">
+              <h2>리뷰 삭제</h2>
+              <FaTimes
+                className="close-icon"
+                onClick={() => setShowDeleteModal(false)}
+              />
+            </div>
             <p>다음 리뷰를 삭제하시겠습니까?</p>
             <p>{selectedReview.comment}</p>
-            <button className="delete-button" onClick={handleDeleteReview}>
-              삭제
-            </button>
-            <button
-              className="cancel-button"
-              onClick={() => setShowDeleteModal(false)}
-            >
-              취소
-            </button>
+            <div className="answer-button-container">
+              <button className="delete-button" onClick={handleDeleteReview}>
+                삭제
+              </button>
+              <button
+                className="cancel-button"
+                onClick={() => setShowDeleteModal(false)}
+              >
+                취소
+              </button>
+            </div>
           </div>
         </div>
       )}
 
       {showAnswerModal && (
-        <div className="modal">
+        <div className="modal-overlay">
           <div className="modal-content">
-            <h2>문의 답변</h2>
-            <p>문의 내용: {selectedInquiry.content}</p>
+            <div className="modal-header">
+              <h2>문의 답변</h2>
+              <FaTimes
+                className="close-icon"
+                onClick={() => {
+                  setShowAnswerModal(false);
+                  setSelectedInquiry(null);
+                  setAnswerContent("");
+                }}
+              />
+            </div>
+            <p>
+              <strong>제목:</strong> {selectedInquiry.title}
+            </p>
+            <p>
+              <strong>내용:</strong> {selectedInquiry.content}
+            </p>
+            <p>
+              <strong>작성자:</strong> {selectedInquiry.email}
+            </p>
             <textarea
               value={answerContent}
               className="answer-textarea"

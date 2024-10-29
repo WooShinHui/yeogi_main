@@ -1383,6 +1383,7 @@ app.post("/api/inquiries", authenticateToken, async (req, res) => {
 });
 
 // 관리자용 문의 목록 조회 API
+// 문의 목록 조회 API
 app.get("/api/admin/inquiries", authenticateToken, async (req, res) => {
   if (!req.user.isAdmin) {
     return res.status(403).json({ error: "관리자 권한이 없습니다." });
@@ -1390,18 +1391,19 @@ app.get("/api/admin/inquiries", authenticateToken, async (req, res) => {
 
   try {
     const inquiries = await queryDatabase(
-      `SELECT i.*, u.email, u.nickname 
+      `SELECT i.*, y.email as user_email 
        FROM inquiries i 
-       JOIN yeogi_main u ON i.user_id = u.id 
+       JOIN yeogi_main y ON i.user_id = y.id 
        ORDER BY i.created_at DESC`
     );
-    res.json(inquiries);
+
+    console.log("조회된 문의:", inquiries); // 디버깅용 로그
+    res.json({ inquiries });
   } catch (error) {
-    console.error("문의 목록 조회 오류:", error);
+    console.error("문의 조회 오류:", error);
     res.status(500).json({ error: "서버 오류가 발생했습니다." });
   }
 });
-// ... 나머지 코드 ...
 // ... existing code ...
 
 // 관리자용 문의 답변 API
@@ -1660,7 +1662,74 @@ app.get("/api/admin/reviews", authenticateToken, async (req, res) => {
     res.status(500).json({ error: "서버 오류가 발생했습니다." });
   }
 });
+// 관리자 메시지 조회 API
+app.get("/api/admin/messages", authenticateToken, async (req, res) => {
+  if (!req.user.isAdmin) {
+    return res.status(403).json({ error: "관리자 권한이 없습니다." });
+  }
 
+  try {
+    const messages = await queryDatabase(
+      `SELECT message FROM admin_messages ORDER BY created_at DESC LIMIT 10`
+    );
+    res.json(messages.map((msg) => msg.message));
+  } catch (error) {
+    console.error("관리자 메시지 조회 오류:", error); // 오류 로그 추가
+    res.status(500).json({ error: "서버 오류가 발생했습니다." });
+  }
+});
+// 관리자 메모 저장 API
+app.post("/api/admin/notes", authenticateToken, async (req, res) => {
+  if (!req.user.isAdmin) {
+    return res.status(403).json({ error: "관리자 권한이 없습니다." });
+  }
+
+  const { message } = req.body;
+  const adminId = req.user.id; // JWT 토큰에서 가져온 관리자 ID 사용
+
+  try {
+    // admin_users 테이블에서 관리자 정보 조회
+    const [adminInfo] = await queryDatabase(
+      "SELECT name, position FROM admin_users WHERE id = ?",
+      [adminId]
+    );
+
+    if (!adminInfo) {
+      return res.status(404).json({ error: "관리자 정보를 찾을 수 없습니다." });
+    }
+
+    await queryDatabase(
+      `INSERT INTO admin_messages (message, admin_id, author_name, author_position) 
+       VALUES (?, ?, ?, ?)`,
+      [message, adminId, adminInfo.name, adminInfo.position]
+    );
+
+    res.status(201).json({ message: "메모가 저장되었습니다." });
+  } catch (error) {
+    console.error("메모 저장 오류:", error);
+    res.status(500).json({ error: "서버 오류가 발생했습니다." });
+  }
+});
+
+// 관리자 메모 조회 API
+app.get("/api/admin/notes", authenticateToken, async (req, res) => {
+  if (!req.user.isAdmin) {
+    return res.status(403).json({ error: "관리자 권한이 없습니다." });
+  }
+
+  try {
+    const notes = await queryDatabase(
+      `SELECT m.message, m.created_at, u.name AS author_name, u.position AS author_position
+       FROM admin_messages m
+       JOIN admin_users u ON m.admin_id = u.id
+       ORDER BY m.created_at ASC` // DESC를 ASC로 변경
+    );
+    res.json(notes);
+  } catch (error) {
+    console.error("메모 조회 오류:", error);
+    res.status(500).json({ error: "서버 오류가 발생했습니다." });
+  }
+});
 // 특정 리뷰 삭제
 app.delete("/api/admin/reviews/:id", authenticateToken, async (req, res) => {
   if (!req.user.isAdmin) {
