@@ -1485,11 +1485,30 @@ app.get("/api/admin/dashboard", authenticateToken, async (req, res) => {
       `,
       [req.user.id]
     );
+    // 오늘의 예약 수 조회 쿼리 수정
+    // 오늘의 예약 수 조회 쿼리 수정 및 로그 추가
     const todayBookings = await queryDatabase(
       `SELECT COUNT(*) as today_bookings 
-       FROM bookings 
-       WHERE DATE(created_at) = CURDATE() 
-       AND payment_status = 'completed'`
+   FROM bookings b
+   JOIN accommodations a ON b.accommodation_id = a.id
+   WHERE DATE(b.created_at) = CURDATE() 
+   AND b.payment_status = 'completed'
+   AND a.admin_id = ?`,
+      [req.user.id]
+    );
+
+    console.log("Today Bookings Query Result:", todayBookings);
+    console.log(
+      "Created_at dates in bookings:",
+      await queryDatabase(
+        `SELECT created_at, payment_status 
+   FROM bookings b
+   JOIN accommodations a ON b.accommodation_id = a.id
+   WHERE a.admin_id = ?
+   ORDER BY created_at DESC
+   LIMIT 5`,
+        [req.user.id]
+      )
     );
 
     const recentBookings = await queryDatabase(

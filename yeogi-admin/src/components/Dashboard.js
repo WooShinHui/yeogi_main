@@ -25,6 +25,7 @@ function Dashboard() {
     dailyRevenue: [],
     dailyCheckIns: [],
     dailyCheckOuts: [],
+    today_bookings: 0, // 이 부분 추가
     popularAccommodations: [],
     recentReviews: [],
     recentInquiries: [],
@@ -129,6 +130,7 @@ function Dashboard() {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         });
+        console.log("Received dashboard data:", response.data); // 로그 추가
         setDashboardData(response.data);
       } catch (error) {
         console.error("대시보드 데이터 조회 실패:", error);
@@ -193,7 +195,7 @@ function Dashboard() {
         <div className="summary-item">
           <div className="summary-title">오늘의 예약</div>
           <div className="summary-value">
-            {dashboardData.today_bookings || 0}
+            {dashboardData.todayBookings || 0}{" "}
           </div>
         </div>
       </div>
