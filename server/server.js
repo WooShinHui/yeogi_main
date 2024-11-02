@@ -17,6 +17,10 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 const crypto = require("crypto");
+console.log("환경변수 로드 확인:", {
+  KAKAO_JAVASCRIPT_KEY: process.env.KAKAO_JAVASCRIPT_KEY,
+  DB_HOST: process.env.DB_HOST,
+});
 // 환경 변수 설정
 const DB_CONFIG = {
   host: process.env.DB_HOST || "localhost",
