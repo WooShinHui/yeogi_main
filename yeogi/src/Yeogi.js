@@ -7,7 +7,7 @@ import { useNavigate, Link } from "react-router-dom";
 import "react-datepicker/dist/react-datepicker.css";
 import "./Component.css";
 import "./Main.css";
-import axios from "axios";
+import api from "./api/axiosConfig"; // 추가
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 
@@ -38,18 +38,27 @@ function Yeogi() {
   setDefaultOptions({ locale: ko });
   const fetchCategories = async () => {
     try {
-      const response = await axios.get("http://localhost:3001/categories");
+      // 요청 URL 로그 추가
+      console.log(
+        "Requesting categories from:",
+        api.defaults.baseURL + "/categories"
+      );
+      const response = await api.get("/categories");
+      console.log("Categories response:", response.data); // 응답 데이터 로그
       setCategories(response.data);
     } catch (error) {
-      console.error("카테고리 불러오기 오류:", error);
+      console.error("카테고리 불러오기 오:", error);
+      // 더 자세한 에러 정보 출력
+      if (error.response) {
+        console.error("Error response:", error.response.data);
+        console.error("Error status:", error.response.status);
+      }
     }
   };
 
   const fetchRecommendedHotels = async () => {
     try {
-      const response = await axios.get("/recommended-hotels", {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      });
+      const response = await api.get("/recommended-hotels"); // URL 수정
       setRecommendedHotels(response.data);
     } catch (error) {
       console.error("추천 호텔 조회 오류:", error);
@@ -85,21 +94,18 @@ function Yeogi() {
     const guestsValue = parseInt(searchParams.guests, 10);
 
     try {
-      const response = await axios.get(
-        "http://localhost:3001/api/accommodations/search",
-        {
-          params: {
-            location: searchParams.destination,
-            checkIn: searchParams.checkIn
-              ? format(searchParams.checkIn, "yyyy-MM-dd")
-              : null,
-            checkOut: searchParams.checkOut
-              ? format(searchParams.checkOut, "yyyy-MM-dd")
-              : null,
-            guests: isNaN(guestsValue) ? null : guestsValue,
-          },
-        }
-      );
+      const response = await api.get("/api/accommodations/search", {
+        params: {
+          location: searchParams.destination,
+          checkIn: searchParams.checkIn
+            ? format(searchParams.checkIn, "yyyy-MM-dd")
+            : null,
+          checkOut: searchParams.checkOut
+            ? format(searchParams.checkOut, "yyyy-MM-dd")
+            : null,
+          guests: isNaN(guestsValue) ? null : guestsValue,
+        },
+      });
 
       // 예약 가능한 숙소만 필터링
       const availableAccommodations = response.data.filter((accommodation) =>
@@ -112,7 +118,7 @@ function Yeogi() {
 
       setSearchResults(availableAccommodations);
       // 검색 기록 저장
-      await axios.post(
+      await api.post(
         "/api/search-history",
         { keyword: searchParams.destination },
         {

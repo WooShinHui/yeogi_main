@@ -1,6 +1,6 @@
 import api from "./axiosConfig";
 
-const API_BASE_URL = "http://localhost:3001";
+const API_BASE_URL = "http://52.78.227.255:3002";
 
 export const searchAccommodations = async (
   location,

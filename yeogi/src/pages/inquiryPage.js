@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import "./inquiryPage.css";
-
+import api from "../api/axiosConfig"; // 상단에 추가
 function InquiryPage() {
   const [showNewInquiryForm, setShowNewInquiryForm] = useState(false);
   const [inquiries, setInquiries] = useState([]);
@@ -19,15 +19,8 @@ function InquiryPage() {
 
   const fetchInquiries = async () => {
     try {
-      const response = await fetch("/api/inquiries", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setInquiries(data);
-      }
+      const response = await api.get("/api/inquiries");
+      setInquiries(response.data);
     } catch (error) {
       console.error("문의 목록 조회 중 오류 발생:", error);
     }
@@ -36,16 +29,9 @@ function InquiryPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch("/api/inquiries", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-        body: JSON.stringify(inquiry),
-      });
+      const response = await api.post("/api/inquiries", inquiry);
 
-      if (response.ok) {
+      if (response.status === 200 || response.status === 201) {
         alert("문의가 성공적으로 등록되었습니다.");
         setInquiry({ title: "", content: "" });
         setShowNewInquiryForm(false);

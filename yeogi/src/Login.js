@@ -55,7 +55,7 @@ function Login() {
     if (hasError) return;
 
     // 인증 코드 요청
-    fetch("http://localhost:3001/request-verification-code", {
+    fetch("http://52.78.227.255:3002/request-verification-code", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -80,7 +80,7 @@ function Login() {
   const handleVerifyCode = () => {
     if (verificationCode === generatedCode) {
       // 인증 코드 확인 후 데이터베이스에 저장
-      fetch("http://localhost:3001/register", {
+      fetch("http://52.78.227.255:3002/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

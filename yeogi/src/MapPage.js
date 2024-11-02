@@ -10,7 +10,7 @@ function MapPage() {
   const [map, setMap] = useState(null);
   const [searchKeyword, setSearchKeyword] = useState("");
   const [selectedHotel, setSelectedHotel] = useState(null);
-  const API_BASE_URL = "http://localhost:3001";
+  const API_BASE_URL = "http://52.78.227.255:3002";
 
   useEffect(() => {
     const script = document.createElement("script");

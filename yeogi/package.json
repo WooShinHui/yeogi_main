@@ -1,8 +1,9 @@
 {
   "name": "yeogi",
   "version": "0.1.0",
-  "proxy": "http://localhost:3001",
+  "proxy": "http://52.78.227.255:3002",
   "private": true,
+  "homepage": "http://yeogi.s3-website.ap-northeast-2.amazonaws.com",
   "dependencies": {
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",

@@ -25,9 +25,11 @@ console.log("현재 작업 디렉토리:", process.cwd());
 console.log("kakao.env 경로:", require("path").resolve("./kakao.env"));
 // 환경 변수 설정
 const DB_CONFIG = {
-  host: process.env.DB_HOST || "localhost",
-  user: process.env.DB_USER || "root",
-  password: process.env.DB_PASSWORD,
+  host:
+    process.env.DB_HOST ||
+    "yeogi-database.c8tqr8r6uxqx.ap-northeast-2.rds.amazonaws.com", // RDS 엔드포인트
+  user: process.env.DB_USER || "admin", // RDS 사용자명
+  password: process.env.DB_PASSWORD, // RDS 비밀번호는 환경변수로만 설정
   database: process.env.DB_NAME || "Yeogi_main",
 };
 
@@ -59,15 +61,10 @@ const EMAIL_CONFIG = {
   secure: false,
 };
 const transporter = nodemailer.createTransport(EMAIL_CONFIG);
-const pool = mysql.createPool({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
+let pool = mysql.createPool({
+  ...DB_CONFIG,
   connectionLimit: 10,
   queueLimit: 0,
-  connectTimeout: 60000, // 타임아웃 60초로 증가
-  acquireTimeout: 60000,
 });
 function generateVerificationCode() {
   return Math.floor(100000 + Math.random() * 900000).toString();
@@ -78,7 +75,7 @@ function generateAdminCode() {
   return Math.random().toString(36).substring(2, 10).toUpperCase();
 }
 // 데이터베이스 연결 풀 생성 함수
-function createPool() {
+function reconnectPool() {
   pool = mysql.createPool({
     ...DB_CONFIG,
     connectionLimit: 10,
@@ -88,15 +85,22 @@ function createPool() {
   pool.on("error", (err) => {
     console.error("데이터베이스 풀 오류:", err);
     if (err.code === "PROTOCOL_CONNECTION_LOST") {
-      createPool();
+      reconnectPool();
     } else {
       throw err;
     }
   });
 }
 
-// 초기 연결 풀 생성
-createPool();
+// 에러 이벤트 리스너 추가
+pool.on("error", (err) => {
+  console.error("데이터베이스 풀 오류:", err);
+  if (err.code === "PROTOCOL_CONNECTION_LOST") {
+    reconnectPool();
+  } else {
+    throw err;
+  }
+});
 
 // 에러 처리 함수
 const handleDatabaseError = (res, error, message) => {
@@ -576,9 +580,15 @@ app.post("/api/kakao-pay", authenticateToken, async (req, res) => {
         quantity: 1,
         total_amount: totalPrice,
         tax_free_amount: 0,
-        approval_url: `${process.env.CLIENT_URL}/reservation/complete?booking_id=${bookingId}`,
-        cancel_url: `${process.env.CLIENT_URL}/reservation/cancel?booking_id=${bookingId}`,
-        fail_url: `${process.env.CLIENT_URL}/reservation/fail?booking_id=${bookingId}`,
+        approval_url:
+          "http://yeogi.s3-website.ap-northeast-2.amazonaws.com/reservation/complete?booking_id=" +
+          bookingId,
+        cancel_url:
+          "http://yeogi.s3-website.ap-northeast-2.amazonaws.com/reservation/cancel?booking_id=" +
+          bookingId,
+        fail_url:
+          "http://yeogi.s3-website.ap-northeast-2.amazonaws.com/reservation/fail?booking_id=" +
+          bookingId,
       },
       {
         headers: {
@@ -589,7 +599,11 @@ app.post("/api/kakao-pay", authenticateToken, async (req, res) => {
     );
 
     const { tid } = response.data;
-
+    console.log("Environment Variables:", {
+      KAKAO_CID: process.env.KAKAO_CID,
+      KAKAO_ADMIN_KEY: process.env.KAKAO_ADMIN_KEY ? "exists" : "missing",
+      CLIENT_URL: process.env.CLIENT_URL,
+    });
     // tid를 데이터베이스에 저장
     await queryDatabase("UPDATE bookings SET tid = ? WHERE id = ?", [
       tid,
