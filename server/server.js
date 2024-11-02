@@ -3,7 +3,7 @@ const bodyParser = require("body-parser");
 const mysql = require("mysql");
 const cors = require("cors");
 const nodemailer = require("nodemailer");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const passport = require("passport");
 const KakaoStrategy = require("passport-kakao").Strategy;
 const session = require("express-session");
@@ -53,7 +53,13 @@ const EMAIL_CONFIG = {
   secure: false,
 };
 const transporter = nodemailer.createTransport(EMAIL_CONFIG);
-let pool;
+const pool = mysql.createPool({
+  host: "yeogi-db.chskcm6kwbkt.ap-northeast-2.rds.amazonaws.com",
+  user: "root",
+  password: "Aleldj7913!",
+  database: "Yeogi_main",
+  charset: "utf8mb4",
+});
 function generateVerificationCode() {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
@@ -139,7 +145,7 @@ const sendVerificationEmail = (email, code) => {
 
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: "http://teamproject.com.s3-website.ap-northeast-2.amazonaws.com",
     credentials: true,
   })
 );
