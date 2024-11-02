@@ -54,13 +54,14 @@ const EMAIL_CONFIG = {
 };
 const transporter = nodemailer.createTransport(EMAIL_CONFIG);
 const pool = mysql.createPool({
-  host: "yeogi-db.chskcm6kwbkt.ap-northeast-2.rds.amazonaws.com",
-  user: "root",
-  password: "Aleldj7913!", // 패스워드 추가
-  database: "Yeogi_main",
-  charset: "utf8mb4",
-  connectTimeout: 20000, // 타임아웃 시간 증가
-  waitForConnections: true,
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  connectionLimit: 10,
+  queueLimit: 0,
+  connectTimeout: 60000, // 타임아웃 60초로 증가
+  acquireTimeout: 60000,
 });
 function generateVerificationCode() {
   return Math.floor(100000 + Math.random() * 900000).toString();
