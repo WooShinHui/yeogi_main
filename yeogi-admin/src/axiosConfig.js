@@ -2,8 +2,9 @@ import axios from "axios";
 
 // axios 인스턴스 생성
 const instance = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || "http://localhost:3002", // 기본 URL 설정
-  timeout: 10000, // 요청 타임아웃 설정
+  baseURL: process.env.REACT_APP_API_URL || "http://52.78.227.255:3002",
+  timeout: 10000,
+  withCredentials: true, // 이 설정 추가
   headers: {
     "Content-Type": "application/json",
   },
@@ -35,7 +36,7 @@ instance.interceptors.response.use(
       if (error.response.status === 401 || error.response.status === 403) {
         localStorage.removeItem("token");
         localStorage.removeItem("adminId");
-        window.location.href = "/admin/login";
+        window.location.href = "/";
       }
 
       // 500: 서버 에러

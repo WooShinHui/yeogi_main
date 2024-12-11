@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../axiosConfig";
 import { format, parseISO } from "date-fns";
 import { FaBell, FaEnvelope, FaTimes } from "react-icons/fa";
 import {
@@ -47,12 +47,12 @@ function Dashboard() {
 
   const fetchDashboardData = async () => {
     try {
-      const response = await axios.get("/api/admin/dashboard", {
+      const response = await api.get("/api/admin/dashboard", {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
-      const notesResponse = await axios.get("/api/admin/notes", {
+      const notesResponse = await api.get("/api/admin/notes", {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
@@ -69,7 +69,7 @@ function Dashboard() {
 
   const handleSaveNote = async () => {
     try {
-      await axios.post(
+      await api.post(
         "/api/admin/notes",
         { message: newNote },
         {
@@ -98,7 +98,7 @@ function Dashboard() {
 
   const handleSubmitAnswer = async () => {
     try {
-      await axios.post(
+      await api.post(
         `/api/admin/inquiries/${selectedInquiry.id}/answer`,
         { response: answerContent },
         {
@@ -119,7 +119,7 @@ function Dashboard() {
 
   const handleDeleteReview = async () => {
     try {
-      await axios.delete(`/api/admin/reviews/${selectedReview.id}`, {
+      await api.delete(`/api/admin/reviews/${selectedReview.id}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
 
@@ -153,7 +153,7 @@ function Dashboard() {
   };
 
   const handleManageAccommodation = (accommodationId) => {
-    navigate(`/admin/accommodation-edit/${accommodationId}`);
+    navigate(`/accommodation-edit/${accommodationId}`);
   };
 
   useEffect(() => {

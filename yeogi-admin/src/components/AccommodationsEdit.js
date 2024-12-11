@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../axiosConfig";
 import "./AccommodationsEdit.css";
 
 function AccommodationEdit() {
@@ -11,7 +11,7 @@ function AccommodationEdit() {
   useEffect(() => {
     const fetchAccommodations = async () => {
       try {
-        const response = await axios.get("/api/admin/accommodations", {
+        const response = await api.get("/api/admin/accommodations", {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
@@ -46,7 +46,7 @@ function AccommodationEdit() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.put(
+      const response = await api.put(
         `/api/admin/accommodation/${selectedAccommodation.id}`,
         selectedAccommodation,
         {

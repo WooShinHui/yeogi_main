@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../axiosConfig";
 import { format, parseISO, differenceInDays } from "date-fns";
 import "./BookingManagement.css";
 
@@ -9,7 +9,7 @@ function BookingManagement() {
   useEffect(() => {
     const fetchBookings = async () => {
       try {
-        const response = await axios.get("/api/admin/bookings", {
+        const response = await api.get("/api/admin/bookings", {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
@@ -44,14 +44,11 @@ function BookingManagement() {
   const handleDeleteBooking = async (bookingId) => {
     if (window.confirm("정말로 이 예약을 삭제하시겠습니까?")) {
       try {
-        const response = await axios.delete(
-          `/api/admin/bookings/${bookingId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
-        );
+        const response = await api.delete(`/api/admin/bookings/${bookingId}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
 
         if (response.status === 200) {
           setBookings(bookings.filter((booking) => booking.id !== bookingId));

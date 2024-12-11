@@ -1,6 +1,6 @@
 .admin-login-container {
   max-width: 400px;
-  margin: 50px 570px;
+  margin: 50px auto;
   padding: 20px;
   background-color: #f9f9f9;
   border-radius: 8px;
@@ -56,4 +56,31 @@
   color: #dc3545;
   text-align: center;
   margin-bottom: 15px;
+}
+.register-link-container {
+  text-align: right; /* 오른쪽 정렬 */
+  margin-top: 15px;
+}
+
+.register-link {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.register-link:hover {
+  background: none; /* hover 시 배경 없애기 */
+}
+
+.register-link p {
+  display: inline;
+  color: #525252;
+  text-decoration: underline;
+  margin: 0;
+  font-size: 14px;
+}
+
+.register-link p:hover {
+  color: #0052a3;
 }

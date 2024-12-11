@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "../axiosConfig";
+import api from "../axiosConfig";
 import "./Sidebar.css";
 import defaultProfile from "../images/default-image.jpg";
 
@@ -23,7 +23,7 @@ function Sidebar() {
       }
 
       try {
-        const response = await axios.get("/api/admin/profile", {
+        const response = await api.get("/api/admin/profile", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -52,7 +52,7 @@ function Sidebar() {
       position: "",
       profile_image: null,
     });
-    navigate("/admin/login");
+    navigate("/"); // "/admin/login" -> "/"
   };
 
   // 로그인 상태가 아니면 빈 컴포넌트 반환
@@ -79,25 +79,25 @@ function Sidebar() {
       </div>
       <ul className="sidebar-menu">
         <li>
-          <Link to="/admin/dashboard">대시보드</Link>
+          <Link to="/dashboard">대시보드</Link>
         </li>
         <li>
-          <Link to="/admin/register-accommodation">숙소 등록</Link>
+          <Link to="/register-accommodation">숙소 등록</Link>
         </li>
         <li>
-          <Link to="/admin/accommodation-edit">숙소 정보 수정</Link>
+          <Link to="/accommodation-edit">숙소 정보 수정</Link>
         </li>
         <li>
-          <Link to="/admin/bookings">예약 관리</Link>
+          <Link to="/bookings">예약 관리</Link>
         </li>
         <li>
-          <Link to="/admin/reviews">리뷰 관리</Link>
+          <Link to="/reviews">리뷰 관리</Link>
         </li>
         <li>
-          <Link to="/admin/users">회원 관리</Link>
+          <Link to="/users">회원 관리</Link>
         </li>
         <li>
-          <Link to="/admin/inquiry">문의 관리</Link>
+          <Link to="/inquiry">문의 관리</Link>
         </li>
       </ul>
       {isLoggedIn && (

@@ -18,6 +18,7 @@ import "./App.css";
 import ReviewManagement from "./components/ReviewManagement";
 import UserManagement from "./components/UserManagement";
 import InquiryManagement from "./components/InquiryManagement";
+
 function App() {
   return (
     <Router>
@@ -25,11 +26,14 @@ function App() {
         <Sidebar />
         <main className="main-content">
           <Routes>
-            <Route path="/admin/login" element={<AdminLogin />} />
-            <Route path="/admin/register" element={<AdminRegister />} />
-            <Route path="/admin/redirect" element={<AdminRedirect />} />
+            {/* 루트 경로를 로그인 페이지로 설정 */}
+            <Route path="/" element={<AdminLogin />} />
+            <Route path="/register" element={<AdminRegister />} />
+            <Route path="/redirect" element={<AdminRedirect />} />
+
+            {/* Protected Routes */}
             <Route
-              path="/admin/register-accommodation"
+              path="/register-accommodation"
               element={
                 <ProtectedRoute>
                   <RegisterAccommodation />
@@ -37,7 +41,7 @@ function App() {
               }
             />
             <Route
-              path="/admin/dashboard"
+              path="/dashboard"
               element={
                 <ProtectedRoute>
                   <Dashboard />
@@ -45,7 +49,7 @@ function App() {
               }
             />
             <Route
-              path="/admin/accommodation-edit"
+              path="/accommodation-edit"
               element={
                 <ProtectedRoute>
                   <AccommodationEdit />
@@ -53,7 +57,7 @@ function App() {
               }
             />
             <Route
-              path="/admin/accommodation-edit/:id"
+              path="/accommodation-edit/:id"
               element={
                 <ProtectedRoute>
                   <AccommodationEdit />
@@ -61,7 +65,7 @@ function App() {
               }
             />
             <Route
-              path="/admin/bookings"
+              path="/bookings"
               element={
                 <ProtectedRoute>
                   <BookingManagement />
@@ -69,7 +73,7 @@ function App() {
               }
             />
             <Route
-              path="/admin/users"
+              path="/users"
               element={
                 <ProtectedRoute>
                   <UserManagement />
@@ -77,7 +81,7 @@ function App() {
               }
             />
             <Route
-              path="/admin/inquiry"
+              path="/inquiry"
               element={
                 <ProtectedRoute>
                   <InquiryManagement />
@@ -85,15 +89,19 @@ function App() {
               }
             />
             <Route
-              path="/admin/reviews"
+              path="/reviews"
               element={
                 <ProtectedRoute>
                   <ReviewManagement />
                 </ProtectedRoute>
               }
             />
-            <Route path="/admin" element={<Navigate to="/admin/redirect" />} />
-            <Route path="*" element={<Navigate to="/admin/login" />} />
+
+            {/* Redirect old admin paths to new paths */}
+            <Route path="/admin/*" element={<Navigate to="/" />} />
+
+            {/* Catch all other routes and redirect to login */}
+            <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </main>
       </div>

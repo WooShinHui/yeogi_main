@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import axios from "axios";
+import api from "../axiosConfig";
 import { useNavigate } from "react-router-dom";
 import "./RegisterAccommodation.css";
 
@@ -25,9 +25,14 @@ function RegisterAccommodation() {
     }
   }, [navigate]);
   useEffect(() => {
-    initializeMap();
+    const script = document.createElement("script");
+    script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=2d218dc43789eda5952b97c178f26fe9&libraries=services`;
+    script.async = true;
+    script.onload = () => {
+      initializeMap();
+    };
+    document.head.appendChild(script);
   }, []);
-
   const initializeMap = () => {
     const container = document.getElementById("map");
     const options = {
@@ -62,9 +67,7 @@ function RegisterAccommodation() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("/api/admin/register-accommodation", formData, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      });
+      await api.post("/api/admin/register-accommodation", formData); // axios 대신 api 사용
       navigate("/admin/dashboard");
     } catch (error) {
       setError(

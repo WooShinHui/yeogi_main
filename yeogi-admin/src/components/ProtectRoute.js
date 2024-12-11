@@ -7,12 +7,12 @@ const ProtectRoute = ({ children }) => {
 
   useEffect(() => {
     const checkAuth = () => {
-      const token = localStorage.getItem("adminToken");
+      const token = localStorage.getItem("token"); // "adminToken" -> "token"으로 수정
       console.log("Current token:", token);
 
       if (!token) {
         console.log("No token found, redirecting to login");
-        navigate("/admin/login");
+        navigate("/"); // "/admin/login" -> "/" 로 수정
       } else {
         setIsAuthenticated(true);
       }

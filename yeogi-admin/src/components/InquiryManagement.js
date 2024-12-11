@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../axiosConfig";
 import { format } from "date-fns";
 import "./InquiryManagement.css";
 
@@ -17,7 +17,7 @@ function InquiryManagement() {
 
   const fetchInquiries = async () => {
     try {
-      const response = await axios.get("/api/admin/inquiries", {
+      const response = await api.get("/api/admin/inquiries", {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
@@ -51,7 +51,7 @@ function InquiryManagement() {
   };
   const handleReply = async () => {
     try {
-      const response = await axios.post(
+      const response = await api.post(
         `/api/admin/inquiries/${selectedInquiry.id}/answer`, // URL 수정
         {
           response: reply, // 서버 API에 맞게 필드명 수정
@@ -83,7 +83,7 @@ function InquiryManagement() {
   };
   const handleUpdateStatus = async (inquiryId, newStatus) => {
     try {
-      const response = await axios.patch(
+      const response = await api.patch(
         `/api/admin/inquiries/${inquiryId}`,
         { status: newStatus },
         {

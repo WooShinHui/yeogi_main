@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import axios from "axios";
+import api from "../axiosConfig";
 import { useNavigate } from "react-router-dom";
 import "./AdminRegister.css";
 
@@ -36,7 +36,7 @@ function AdminRegister() {
       return;
     }
     try {
-      const response = await axios.post(
+      const response = await api.post(
         "/api/admin/request-verification",
         formData
       );
@@ -54,7 +54,7 @@ function AdminRegister() {
   const handleVerifyAndRegister = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("/api/admin/verify-and-register", {
+      const response = await api.post("/api/admin/verify-and-register", {
         email: formData.email,
         verificationCode,
       });

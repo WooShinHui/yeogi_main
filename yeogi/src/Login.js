@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Component.css";
-
+import api from "./api/axiosConfig"; // 추가
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -21,7 +21,7 @@ function Login() {
   const [phoneNumberError, setPhoneNumberError] = useState("");
   const navigate = useNavigate();
 
-  const handleRegister = () => {
+  const handleRegister = async () => {
     let hasError = false;
 
     if (password !== passwordCheck) {
@@ -54,47 +54,47 @@ function Login() {
 
     if (hasError) return;
 
-    // 인증 코드 요청
-    fetch("http://52.78.227.255:3002/request-verification-code", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email, password, birth, nickname, phoneNumber }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.message === "인증 코드 전송 성공") {
-          setIsCodeSent(true);
-          setGeneratedCode(data.verificationCode);
-        } else {
-          setEmailError(data.error || "인증 코드 전송 실패");
-        }
-      })
-      .catch((error) => {
-        console.error("에러 발생:", error);
-        alert("서버 오류");
+    try {
+      const response = await api.post("/request-verification-code", {
+        email,
+        password,
+        birth,
+        nickname,
+        phoneNumber,
       });
+
+      if (response.data.message === "인증 코드 전송 성공") {
+        setIsCodeSent(true);
+        setGeneratedCode(response.data.verificationCode);
+      } else {
+        setEmailError(response.data.error || "인증 코드 전송 실패");
+      }
+    } catch (error) {
+      console.error("에러 발생:", error);
+      setEmailError(error.response?.data?.error || "서버 오류가 발생했습니다");
+    }
   };
 
-  const handleVerifyCode = () => {
+  const handleVerifyCode = async () => {
     if (verificationCode === generatedCode) {
-      // 인증 코드 확인 후 데이터베이스에 저장
-      fetch("http://52.78.227.255:3002/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password, birth, nickname, phoneNumber }),
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          if (data.message === "사용자 등록 완료") {
-            navigate("/next-page");
-          } else {
-            setError(data.error || "등록 실패");
-          }
+      try {
+        const response = await api.post("/register", {
+          email,
+          password,
+          birth,
+          nickname,
+          phoneNumber,
         });
+
+        if (response.data.message === "사용자 등록 완료") {
+          navigate("/next-page");
+        } else {
+          setError(response.data.error || "등록 실패");
+        }
+      } catch (error) {
+        console.error("등록 실패:", error);
+        setError(error.response?.data?.error || "서버 오류가 발생했습니다");
+      }
     } else {
       setError("잘못된 인증 코드입니다.");
     }

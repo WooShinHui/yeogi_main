@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../axiosConfig";
 import { format, parseISO } from "date-fns";
 import "./UserManagement.css";
 
@@ -14,7 +14,7 @@ function UserManagement() {
 
   const fetchUsers = async () => {
     try {
-      const response = await axios.get("/api/admin/users", {
+      const response = await api.get("/api/admin/users", {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
@@ -49,7 +49,7 @@ function UserManagement() {
   const handleDeleteUser = async (userId) => {
     if (window.confirm("정말로 이 사용자를 삭제하시겠습니까?")) {
       try {
-        const response = await axios.delete(`/api/admin/users/${userId}`, {
+        const response = await api.delete(`/api/admin/users/${userId}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },

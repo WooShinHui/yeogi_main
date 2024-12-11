@@ -2,7 +2,8 @@
   "name": "yeogi-admin",
   "version": "0.1.0",
   "private": true,
-  "proxy": "http://localhost:3002",
+  "proxy": "http://52.78.227.255:3002",
+  "homepage": "http://yeogi-admin.s3-website.ap-northeast-2.amazonaws.com",
   "dependencies": {
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",

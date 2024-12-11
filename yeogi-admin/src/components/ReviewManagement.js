@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../axiosConfig";
 import { format, parseISO } from "date-fns";
 import "./ReviewManagement.css";
 
@@ -10,7 +10,7 @@ function ReviewManagement() {
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const response = await axios.get("/api/admin/reviews", {
+        const response = await api.get("/api/admin/reviews", {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
@@ -45,7 +45,7 @@ function ReviewManagement() {
   const handleDeleteReview = async (reviewId) => {
     if (window.confirm("정말로 이 리뷰를 삭제하시겠습니까?")) {
       try {
-        const response = await axios.delete(`/api/admin/reviews/${reviewId}`, {
+        const response = await api.delete(`/api/admin/reviews/${reviewId}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },

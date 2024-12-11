@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import axios from "axios";
+import api from "../axiosConfig";
 import { useNavigate } from "react-router-dom";
 import "./AdminLogin.css";
 
@@ -18,30 +18,25 @@ const AdminLogin = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      console.log("Sending login request:", formData);
-      const response = await axios.post("/api/admin/login", formData);
-      console.log("Login response:", response.data);
+      const response = await api.post("/api/admin/login", {
+        email: formData.email,
+        password: formData.password,
+        adminCode: formData.adminCode,
+      });
+
+      console.log("Login response:", response.data); // 응답 확인
 
       if (response.data.token) {
-        localStorage.setItem("token", response.data.token); // adminToken -> token으로 변경
+        localStorage.setItem("token", response.data.token);
         localStorage.setItem("adminId", response.data.adminId);
-        console.log("Token stored:", localStorage.getItem("token"));
-
-        // axios 기본 헤더 설정
-        axios.defaults.headers.common[
-          "Authorization"
-        ] = `Bearer ${response.data.token}`;
-
-        navigate("/admin/dashboard");
-      } else {
-        setError("토큰이 발급되지 않았습니다.");
+        console.log("Stored token:", localStorage.getItem("token")); // 토큰 저장 확인
+        navigate("/dashboard");
       }
     } catch (error) {
-      console.error("Login error:", error.response?.data);
+      console.error("Login error:", error);
       setError(error.response?.data?.error || "로그인에 실패했습니다.");
     }
   };
-
   return (
     <div className="admin-login-container">
       <h2 className="admin-login-title">관리자 로그인</h2>
@@ -83,6 +78,15 @@ const AdminLogin = () => {
         <button type="submit" className="login-button">
           로그인
         </button>
+        <div className="register-link-container">
+          <button
+            type="button"
+            className="register-link"
+            onClick={() => navigate("/register")}
+          >
+            <p>회원가입</p>
+          </button>
+        </div>
       </form>
     </div>
   );
